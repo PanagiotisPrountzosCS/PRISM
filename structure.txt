@@ -35,3 +35,8 @@ src/gui/
 ├── plotmanager.cpp          # Plot handling
 ├── sensorwidget.cpp         # Per-sensor widget
 └── resources/               # GUI resources
+
+test/
+├── main.cpp     # Measurement tests
+├── test_sensor.cpp          # Sensor tests
+└── test_forecaster.cpp     # Forecasting tests
