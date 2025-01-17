@@ -80,7 +80,7 @@ Real-time sensor monitoring system designed to collect, process, analyze, and vi
 - Language: C++17 or later
 - Build System: CMake 3.16+
 - Core Dependencies: STL, C Standard Library
-- Optional Dependencies: Qt6, QCustomPlot (GUI only)
+- Optional Dependencies: Qt6 (GUI only), Google Test (for unit testing)
 
 ### 2. Data Format
 

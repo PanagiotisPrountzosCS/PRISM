@@ -1,4 +1,6 @@
-int main(int argc, char **argv) {
-    // TODO: Implement CLI functionality
+#include "cli/mainapplication.h"
+
+int main(int argc, char** argv) {
+    PRISM_CLI::mainLoop();
     return 0;
 }
