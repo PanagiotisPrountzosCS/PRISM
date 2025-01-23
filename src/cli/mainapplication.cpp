@@ -61,4 +61,5 @@ void mainLoop() {
         std::this_thread::sleep_for(std::chrono::milliseconds(threadSleepTime_ms));
     }
 }
+
 }  // namespace PRISM_CLI

@@ -1,9 +1,13 @@
 #include <QApplication>
-#include <QMainWindow>
 
-int main(int argc, char **argv) {
+#include "gui/mainwindow.h"
+
+int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
-    QMainWindow window;
+
+    MainWindow window;
+    window.setWindowTitle("PRISM GUI");
     window.show();
+
     return app.exec();
 }

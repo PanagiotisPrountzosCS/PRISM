@@ -9,27 +9,21 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# =================================================================
-# ======================HEADERS / SOURCES==========================
-# =================================================================
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
 
+
+# =================================================================
+# ======================SOURCES====================================
+# =================================================================
 
 set(SOURCE_DIR ${PROJECT_SOURCE_DIR}/src)
 set(INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 set(TEST_DIR ${PROJECT_SOURCE_DIR}/test)
 
-set(HEADERS
-    ${INCLUDE_DIR}/cli/mainapplication.h
-    ${INCLUDE_DIR}/globaldefinitions.h
-    ${INCLUDE_DIR}/core/objectid.h
-    ${INCLUDE_DIR}/core/sensor.h
-    ${INCLUDE_DIR}/core/measurement.h
-    ${INCLUDE_DIR}/core/idatamonitor.h
-    ${INCLUDE_DIR}/core/randomdatamonitor.h
-    ${INCLUDE_DIR}/datagenerators/randomnumberfactory.h
-)
-
-set(SOURCES
+set(CORE_SOURCES
     ${SOURCE_DIR}/core/objectid.cpp
     ${SOURCE_DIR}/core/sensor.cpp
     ${SOURCE_DIR}/core/randomdatamonitor.cpp
@@ -45,7 +39,10 @@ set(TEST_SOURCES
 
 set(CLI_SOURCES
     ${SOURCE_DIR}/cli/mainapplication.cpp
-    ${SOURCE_DIR}/cli/main.cpp
+)
+
+set(GUI_SOURCES
+    ${SOURCE_DIR}/gui/mainwindow.cpp
 )
 
 #=================================================================
@@ -61,7 +58,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
 endif()
 
 # Core Library
-add_library(prism_core STATIC ${SOURCES})
+add_library(prism_core STATIC ${CORE_SOURCES})
 target_include_directories(prism_core PRIVATE ${INCLUDE_DIR})
 
 #=================================================================
@@ -100,11 +97,15 @@ endif()
 
 option(BUILD_GUI "Build the GUI application" ON)
 if(BUILD_GUI)
-    find_package(Qt6 COMPONENTS Widgets Charts QUIET)
+    find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Charts)
     if(Qt6_FOUND)
-        add_executable(prism_gui src/gui/main.cpp)
+        message("Qt6 found, building GUI application...")
+        add_executable(prism_gui src/gui/main.cpp include/gui/mainwindow.h src/gui/mainwindow.cpp)
+        target_include_directories(prism_gui PRIVATE ${INCLUDE_DIR})
         target_link_libraries(prism_gui PRIVATE 
             prism_core
+            Qt6::Core
+            Qt6::Gui
             Qt6::Widgets
             Qt6::Charts
         )
