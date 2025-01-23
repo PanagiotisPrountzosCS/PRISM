@@ -12,4 +12,9 @@ enum class SensorType { TEMPERATURE, PRESSURE, CO2 };
 
 enum class ProbabilityDistribution { UNIFORM, NORMAL };
 
+typedef struct RealPoint {
+    RealValue x;
+    RealValue y;
+} RealPoint;
+
 }  // namespace PRISM

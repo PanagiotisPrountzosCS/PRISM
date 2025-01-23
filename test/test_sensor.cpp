@@ -1,13 +1,21 @@
 #include <gtest/gtest.h>
 
-#include "globaldefinitions.h"
+#include "core/randomdatamonitor.h"
 #include "core/sensor.h"
+#include "datagenerators/randomnumberfactory.h"
+#include "globaldefinitions.h"
 
 namespace PRISMTESTS {
 
 TEST(Sensor, Construction) {
-    PRISM::Sensor s1("sensor1", PRISM::SensorType::TEMPERATURE);
-    PRISM::Sensor s2("sensor2", PRISM::SensorType::PRESSURE);
+    PRISM::Sensor s1("sensor1", PRISM::SensorType::TEMPERATURE,
+                     std::make_shared<PRISM::RandomDataMonitor>(
+                         std::make_shared<PRISM::RandomNumberFactory>(
+                             50, 100, PRISM::ProbabilityDistribution::NORMAL)));
+    PRISM::Sensor s2("sensor2", PRISM::SensorType::PRESSURE,
+                     std::make_shared<PRISM::RandomDataMonitor>(
+                         std::make_shared<PRISM::RandomNumberFactory>(
+                             100, 200, PRISM::ProbabilityDistribution::NORMAL)));
 
     EXPECT_NE(s1.getId(), s2.getId());
     EXPECT_EQ(s1.getName(), "sensor1");
@@ -15,7 +23,10 @@ TEST(Sensor, Construction) {
 }
 
 TEST(Sensor, MeasurementCreation) {
-    PRISM::Sensor s("test", PRISM::SensorType::TEMPERATURE);
+    PRISM::Sensor s("test", PRISM::SensorType::TEMPERATURE,
+                    std::make_shared<PRISM::RandomDataMonitor>(
+                        std::make_shared<PRISM::RandomNumberFactory>(
+                            50, 100, PRISM::ProbabilityDistribution::NORMAL)));
     auto m = s.createMeasurement(42.0, 1000000);
 
     EXPECT_EQ(m.value, 42.0);

@@ -1,8 +1,10 @@
 #pragma once
 
+#include <memory>  // Include for smart pointers
 #include <string>
 #include <vector>
 
+#include "core/idatamonitor.h"
 #include "globaldefinitions.h"
 #include "measurement.h"
 #include "objectid.h"
@@ -11,8 +13,8 @@ namespace PRISM {
 
 class Sensor {
 public:
-    Sensor(std::string name,
-           SensorType type);  // Creates sensor with new unique ID
+    Sensor(std::string name, SensorType type,
+           std::shared_ptr<IDataMonitor> dataMonitor);  // Creates sensor with new unique ID
 
     // Getters
     const std::string& getName() const;
@@ -37,6 +39,7 @@ private:
     double _lastValue{0.0};
     int64_t _lastTimestamp{0};
     std::vector<Measurement> _measurements;
+    std::shared_ptr<IDataMonitor> _dataMonitor;  // Use smart pointer
 };
 
 }  // namespace PRISM

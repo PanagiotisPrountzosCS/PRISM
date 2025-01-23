@@ -24,12 +24,15 @@ set(HEADERS
     ${INCLUDE_DIR}/core/objectid.h
     ${INCLUDE_DIR}/core/sensor.h
     ${INCLUDE_DIR}/core/measurement.h
+    ${INCLUDE_DIR}/core/idatamonitor.h
+    ${INCLUDE_DIR}/core/randomdatamonitor.h
     ${INCLUDE_DIR}/datagenerators/randomnumberfactory.h
 )
 
 set(SOURCES
     ${SOURCE_DIR}/core/objectid.cpp
     ${SOURCE_DIR}/core/sensor.cpp
+    ${SOURCE_DIR}/core/randomdatamonitor.cpp
     ${SOURCE_DIR}/datagenerators/randomnumberfactory.cpp
 )
 
@@ -95,7 +98,7 @@ endif()
 # GUI Application (Optional)
 # =================================================================
 
-option(BUILD_GUI "Build the GUI application" OFF)
+option(BUILD_GUI "Build the GUI application" ON)
 if(BUILD_GUI)
     find_package(Qt6 COMPONENTS Widgets Charts QUIET)
     if(Qt6_FOUND)

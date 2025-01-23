@@ -7,8 +7,8 @@
 
 namespace PRISM {
 
-Sensor::Sensor(std::string name, SensorType type)
-    : _id(), _name(std::move(name)), _type(type) {}  // Initialize sensor type
+Sensor::Sensor(std::string name, SensorType type, std::shared_ptr<IDataMonitor> dataMonitor)
+    : _id(), _name(std::move(name)), _type(type), _dataMonitor(dataMonitor) {}
 
 const std::string& Sensor::getName() const { return _name; }
 
@@ -59,18 +59,23 @@ RealValue Sensor::getYByIndex(size_t index) const {
 void Sensor::appendMeasurement(Measurement m) { _measurements.push_back(m); }
 
 void Sensor::clear() { _measurements.clear(); }
+
 void Sensor::poll() {
-    // if(existsNewMeasurement){
-    //   appendMeasurement(createMeasurement(...));
-    // }
+    if (_dataMonitor->poll()) {
+        while (_dataMonitor->size() > 0) {
+            auto nextPoint = _dataMonitor->getNextMeasurement();
+            auto newMeasurement = createMeasurement(nextPoint.x, nextPoint.y);
+            appendMeasurement(newMeasurement);
+        }
+    }
 
-    auto randomNumberFactory = RandomNumberFactory(50, 100, ProbabilityDistribution::NORMAL);
+    // auto randomNumberFactory = RandomNumberFactory(50, 100, ProbabilityDistribution::NORMAL);
 
-    auto newMeasurement = createMeasurement(randomNumberFactory.createRandomNumber(),
-                                            randomNumberFactory.createRandomNumber());
-    appendMeasurement(newMeasurement);
-    std::cout << _name << " contains (" << newMeasurement.timestamp_us << ", "
-              << newMeasurement.value << ")\n";
+    // auto newMeasurement = createMeasurement(randomNumberFactory.createRandomNumber(),
+    //                                         randomNumberFactory.createRandomNumber());
+    // appendMeasurement(newMeasurement);
+    // std::cout << _name << " contains (" << newMeasurement.timestamp_us << ", "
+    //           << newMeasurement.value << ")\n";
 }
 
 size_t Sensor::size() const { return _measurements.size(); }

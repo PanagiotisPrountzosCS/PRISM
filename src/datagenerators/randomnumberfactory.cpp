@@ -3,7 +3,7 @@
 #include <cassert>
 #include <memory>
 #include <random>
-
+#include <iostream>
 #include "globaldefinitions.h"
 
 namespace PRISM {
@@ -23,7 +23,8 @@ void PRISM::RandomNumberFactory::update() {
     // chose a distribution afterwards;
     switch (_probabilityDistribution) {
         case ProbabilityDistribution::UNIFORM:
-            _distribution = std::uniform_int_distribution((int64_t)_lowerLimit, (int64_t)_upperLimit);
+            _distribution =
+                std::uniform_int_distribution((int64_t)_lowerLimit, (int64_t)_upperLimit);
             break;
 
         case ProbabilityDistribution::NORMAL:
