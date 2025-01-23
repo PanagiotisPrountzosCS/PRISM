@@ -7,12 +7,11 @@
 
 namespace PRISM {
 
-struct Measurement {
-    Time timestamp_us;    // Unix timestamp in microseconds
-    Time readTime_us;     // When measurement was read
-    RealValue value;      // Measurement value
+typedef struct Measurement {
+    Time timestamp_us;    // Unix timestamp in microseconds     (x value)
+    Time readTime_us;     // When measurement was read          (time read by PRISM)
+    RealValue value;      // Measurement value                  (y value)
     ObjectId sensorId;    // Sensor identifier
-    uint32_t errorFlags;  // For potential error conditions
-};
+} Measurement;
 
 }  // namespace PRISM

@@ -32,7 +32,6 @@ TEST(Sensor, MeasurementCreation) {
     EXPECT_EQ(m.value, 42.0);
     EXPECT_EQ(m.timestamp_us, 1000000);
     EXPECT_EQ(m.sensorId, s.getId());
-    EXPECT_EQ(m.errorFlags, 0);
 
     EXPECT_EQ(s.getLastValue(), 42.0);
     EXPECT_EQ(s.getLastTimestamp(), 1000000);

@@ -1,17 +1,8 @@
 #include "gui/mainwindow.h"
 
-#include <QChart>
 #include <QChartView>
 #include <QHBoxLayout>
-#include <QLabel>
 #include <QLineSeries>
-#include <QListWidget>
-#include <QPushButton>
-#include <QRandomGenerator>
-#include <QScrollArea>
-#include <QSizePolicy>
-#include <QStackedWidget>
-#include <QVBoxLayout>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),

@@ -29,6 +29,7 @@ public:
     RealValue getYByIndex(size_t index) const;
     void appendMeasurement(Measurement m);
     void clear();
+    void freeHeap();
     void poll();
     size_t size() const;
 

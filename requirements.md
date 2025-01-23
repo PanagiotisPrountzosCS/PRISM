@@ -93,8 +93,6 @@ struct Measurement {
     struct Metadata { // Optional metadata
         int64_t readTime;
         int64_t processTime;
-        uint32_t errorFlags;
-        uint32_t padding;
 } metadata;
 };
 

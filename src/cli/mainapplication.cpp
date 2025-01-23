@@ -20,6 +20,7 @@ void pollingCallback(SensorMap& sensors) {
         std::cout << "======= Done polling " << sensor.second.getName() << " =============\n\n";
 
         if (sensor.second.size() >= maxMeasurements) {
+            std::cout << sensor.second.getName() << '\n';
             for (size_t i = 0; i < maxMeasurements; ++i) {
                 std::cout << "(" << sensor.second.getMeasurementByIndex(i).readTime_us << ", "
                           << sensor.second.getMeasurementByIndex(i).value << ")\n";
@@ -27,6 +28,7 @@ void pollingCallback(SensorMap& sensors) {
             // save measurements to file
             // then clear the sensor
             sensor.second.clear();
+            sensor.second.freeHeap();
         }
     }
 }
@@ -35,16 +37,14 @@ void mainLoop() {
     // set up all the sensors
     SensorMap sensors;
 
-    PRISM::Sensor sensor1("Temperature Sensor #1", PRISM::SensorType::TEMPERATURE,
-                          std::make_shared<PRISM::RandomDataMonitor>(
-                              std::make_shared<PRISM::RandomNumberFactory>(
-                                  50, 100, PRISM::ProbabilityDistribution::NORMAL)));
-    sensors.emplace(sensor1.getId(), sensor1);
-    PRISM::Sensor sensor2("Pressure Sensor #2", PRISM::SensorType::PRESSURE,
-                          std::make_shared<PRISM::RandomDataMonitor>(
-                              std::make_shared<PRISM::RandomNumberFactory>(
-                                  100, 200, PRISM::ProbabilityDistribution::NORMAL)));
-    sensors.emplace(sensor2.getId(), sensor2);
+    for (int i = 0; i < 200; i++) {
+        std::string name = "Temperature Sensor #" + std::to_string(i);
+        PRISM::Sensor newSensor(
+            name, PRISM::SensorType::TEMPERATURE,
+            std::make_shared<PRISM::RandomDataMonitor>(std::make_shared<PRISM::RandomNumberFactory>(
+                50, 100, PRISM::ProbabilityDistribution::NORMAL)));
+        sensors.emplace(newSensor.getId(), newSensor);
+    }
 
     // main loop
     auto startTime = std::chrono::high_resolution_clock::now();

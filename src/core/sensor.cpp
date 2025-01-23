@@ -23,8 +23,9 @@ Measurement Sensor::createMeasurement(RealValue value, Time timestamp_us) {
     m.timestamp_us = timestamp_us;
     m.value = value;
     m.sensorId = _id;
-    m.readTime_us = std::chrono::high_resolution_clock::now().time_since_epoch().count();
-    m.errorFlags = 0;
+    auto microSecondReadTime = std::chrono::duration_cast<std::chrono::microseconds>(
+        std::chrono::high_resolution_clock::now().time_since_epoch());
+    m.readTime_us = microSecondReadTime.count();
 
     _lastValue = value;
     _lastTimestamp = timestamp_us;
@@ -60,11 +61,15 @@ void Sensor::appendMeasurement(Measurement m) { _measurements.push_back(m); }
 
 void Sensor::clear() { _measurements.clear(); }
 
+void Sensor::freeHeap() { _measurements.shrink_to_fit(); }
+
 void Sensor::poll() {
     if (_dataMonitor->poll()) {
         while (_dataMonitor->size() > 0) {
             auto nextPoint = _dataMonitor->getNextMeasurement();
             auto newMeasurement = createMeasurement(nextPoint.x, nextPoint.y);
+            std::cout << newMeasurement.readTime_us << " -> (" << newMeasurement.timestamp_us
+                      << ", " << newMeasurement.value << ")\n";
             appendMeasurement(newMeasurement);
         }
     }

@@ -4,7 +4,6 @@
 #include <QListWidget>
 #include <QMainWindow>
 #include <QStackedWidget>
-#include <QWidget>
 
 class MainWindow : public QMainWindow {
     Q_OBJECT;
