@@ -4,12 +4,14 @@
 #include <iostream>
 #include <thread>
 #include <unordered_map>
-
+#include <fstream>
+#include <sstream>
 #include "cli/variables.h"
 #include "core/objectid.h"
 #include "core/randomdatamonitor.h"
 #include "core/sensor.h"
 #include "datagenerators/randomnumberfactory.h"
+#include "core/jsonparser.h"
 
 namespace PRISM_CLI {
 
@@ -37,13 +39,28 @@ void mainLoop() {
     // set up all the sensors
     SensorMap sensors;
 
-    for (int i = 0; i < 200; i++) {
-        std::string name = "Temperature Sensor #" + std::to_string(i);
-        PRISM::Sensor newSensor(
-            name, PRISM::SensorType::TEMPERATURE,
-            std::make_shared<PRISM::RandomDataMonitor>(std::make_shared<PRISM::RandomNumberFactory>(
-                50, 100, PRISM::ProbabilityDistribution::NORMAL)));
-        sensors.emplace(newSensor.getId(), newSensor);
+    std::ifstream configFile("config.json");
+    std::stringstream configBuffer;
+    configBuffer << configFile.rdbuf();
+
+    try{
+        PRISM::JSONParser::Value config = PRISM::JSONParser::Value::parse(configBuffer.str());
+
+        std::cout << "Config parsed successfully\n";
+
+        if(!validateConfig(config)) {
+            std::cerr << "Invalid config file\n";
+            return;
+        }
+
+        // create the sensors
+        for (const auto& sensor : config.array_val) {
+            //create sensor here
+        }
+    }
+    catch (const std::exception& e){
+        std::cerr << "Error parsing config file: " << e.what() << std::endl;
+        return;
     }
 
     // main loop

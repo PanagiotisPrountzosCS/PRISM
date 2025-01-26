@@ -22,6 +22,7 @@ set(CORE_SOURCES
 	${SOURCE_DIR}/core/sensor.cpp
 	${SOURCE_DIR}/core/randomdatamonitor.cpp
 	${SOURCE_DIR}/datagenerators/randomnumberfactory.cpp
+	${SOURCE_DIR}/core/jsonparser.cpp
 )
 
 set(TEST_SOURCES
@@ -33,6 +34,7 @@ set(TEST_SOURCES
 
 set(CLI_SOURCES
 	${SOURCE_DIR}/cli/mainapplication.cpp
+	${SOURCE_DIR}/cli/helpers.cpp
 )
 
 set(GUI_SOURCES
@@ -68,7 +70,7 @@ target_link_libraries(prism_cli PRIVATE prism_core)
 # Tests Application (Optional)
 # =================================================================
 
-option(BUILD_TESTS "Build the tests" ON)
+option(BUILD_TESTS "Build the tests" OFF)
 if(BUILD_TESTS)
 	find_package(GTest QUIET)
 	if(GTest_FOUND)

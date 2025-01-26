@@ -10,6 +10,8 @@ using RealValue = double;
 
 enum class SensorType { TEMPERATURE, PRESSURE, CO2 };
 
+enum class DataMonitorType { RANDOM, FILE, URL };
+
 enum class ProbabilityDistribution { UNIFORM, NORMAL };
 
 typedef struct RealPoint {

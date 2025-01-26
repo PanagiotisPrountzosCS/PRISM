@@ -4,19 +4,34 @@
 #include <iostream>
 
 #include "datagenerators/randomnumberfactory.h"
-
+#include "core/randomdatamonitor.h"
 namespace PRISM {
 
-Sensor::Sensor(std::string name, SensorType type, std::shared_ptr<IDataMonitor> dataMonitor)
-    : _id(), _name(std::move(name)), _type(type), _dataMonitor(dataMonitor) {}
+Sensor::Sensor(std::string name, SensorType type, DataMonitorType dataMonitorType, RealValue upperLimit, RealValue lowerLimit, std::string unit )
+    : _id(), _name(std::move(name)), _type(type), _dataMonitorType(dataMonitorType), _upperLimit(upperLimit), _lowerLimit(lowerLimit), _unit(unit) {
+        if (dataMonitorType == DataMonitorType::FILE) {
+            // TODO: Implement file data monitor
+        } 
+        else if (dataMonitorType == DataMonitorType::RANDOM) {
+            auto randomNumberFactory = std::make_shared<RandomNumberFactory>(upperLimit, lowerLimit, ProbabilityDistribution::NORMAL);
+            _dataMonitor = std::make_shared<RandomDataMonitor>(randomNumberFactory);
+        }
+        else if (dataMonitorType == DataMonitorType::URL) {
+            // TODO: Implement URL data monitor
+        }
+        else {
+            std::cerr << "Invalid data monitor type\n";
+            exit(1);
+        }
+    }
 
 const std::string& Sensor::getName() const { return _name; }
 
 ObjectId Sensor::getId() const { return _id; }
 
-double Sensor::getLastValue() const { return _lastValue; }
+PRISM::RealValue Sensor::getLastValue() const { return _lastValue; }
 
-int64_t Sensor::getLastTimestamp() const { return _lastTimestamp; }
+PRISM::Time Sensor::getLastTimestamp() const { return _lastTimestamp; }
 
 Measurement Sensor::createMeasurement(RealValue value, Time timestamp_us) {
     Measurement m;

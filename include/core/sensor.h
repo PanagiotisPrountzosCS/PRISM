@@ -14,7 +14,7 @@ namespace PRISM {
 class Sensor {
 public:
     Sensor(std::string name, SensorType type,
-           std::shared_ptr<IDataMonitor> dataMonitor);  // Creates sensor with new unique ID
+            DataMonitorType dataMonitorType, RealValue upperLimit, RealValue lowerLimit, std::string unit);  // Creates sensor with new unique ID
 
     // Getters
     const std::string& getName() const;
@@ -35,8 +35,12 @@ public:
 
 private:
     ObjectId _id;
+    DataMonitorType _dataMonitorType;
     std::string _name;
     SensorType _type;
+    RealValue _upperLimit;
+    RealValue _lowerLimit;
+    std::string _unit;
     double _lastValue{0.0};
     int64_t _lastTimestamp{0};
     std::vector<Measurement> _measurements;
