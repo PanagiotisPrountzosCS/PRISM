@@ -22,4 +22,4 @@ void validateConfig(const PRISM::JSONParser::Value& config);
 
 void createSensors(const PRISM::JSONParser::Value& config, SensorMap& sensors);
 
-}
+}  // namespace PRISM_CLI

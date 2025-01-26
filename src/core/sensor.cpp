@@ -1,28 +1,34 @@
+#include "core/sensor.h"
+
 #include <chrono>
 #include <iostream>
 
 #include "core/randomdatamonitor.h"
-#include "core/sensor.h"
 
 namespace PRISM {
 
-Sensor::Sensor(std::string name, SensorType type, DataMonitorType dataMonitorType, RealValue upperLimit, RealValue lowerLimit, std::string unit )
-    : _id(), _name(std::move(name)), _type(type), _dataMonitorType(dataMonitorType), _upperLimit(upperLimit), _lowerLimit(lowerLimit), _unit(unit) {
-        if (dataMonitorType == DataMonitorType::FILE) {
-            // TODO: Implement file data monitor
-        } 
-        else if (dataMonitorType == DataMonitorType::RANDOM) {
-            auto randomNumberFactory = std::make_shared<RandomNumberFactory>(lowerLimit, upperLimit, ProbabilityDistribution::NORMAL);
-            _dataMonitor = std::make_shared<RandomDataMonitor>(randomNumberFactory);
-        }
-        else if (dataMonitorType == DataMonitorType::URL) {
-            // TODO: Implement URL data monitor
-        }
-        else {
-            std::cerr << "Invalid data monitor type\n";
-            exit(1);
-        }
+Sensor::Sensor(std::string name, SensorType type, DataMonitorType dataMonitorType,
+               RealValue upperLimit, RealValue lowerLimit, std::string unit)
+    : _id(),
+      _name(std::move(name)),
+      _type(type),
+      _dataMonitorType(dataMonitorType),
+      _upperLimit(upperLimit),
+      _lowerLimit(lowerLimit),
+      _unit(unit) {
+    if (dataMonitorType == DataMonitorType::FILE) {
+        // TODO: Implement file data monitor
+    } else if (dataMonitorType == DataMonitorType::RANDOM) {
+        auto randomNumberFactory = std::make_shared<RandomNumberFactory>(
+            lowerLimit, upperLimit, ProbabilityDistribution::NORMAL);
+        _dataMonitor = std::make_shared<RandomDataMonitor>(randomNumberFactory);
+    } else if (dataMonitorType == DataMonitorType::URL) {
+        // TODO: Implement URL data monitor
+    } else {
+        std::cerr << "Invalid data monitor type\n";
+        exit(1);
     }
+}
 
 const std::string& Sensor::getName() const { return _name; }
 

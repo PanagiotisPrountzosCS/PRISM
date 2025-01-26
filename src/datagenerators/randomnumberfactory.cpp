@@ -1,9 +1,8 @@
-#include <memory>
-#include <random>
-#include <iostream>
-
 #include "datagenerators/randomnumberfactory.h"
 
+#include <iostream>
+#include <memory>
+#include <random>
 
 namespace PRISM {
 
@@ -16,7 +15,7 @@ RandomNumberFactory::RandomNumberFactory(RealValue lowerLimit, RealValue upperLi
 }
 
 void PRISM::RandomNumberFactory::update() {
-    if(_lowerLimit > _upperLimit) {
+    if (_lowerLimit > _upperLimit) {
         std::cerr << "Lower limit must be less than upper limit\n";
         exit(1);
     }

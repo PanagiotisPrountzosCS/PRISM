@@ -1,13 +1,13 @@
+#include "cli/mainapplication.h"
+
 #include <chrono>
 #include <iostream>
 #include <thread>
 #include <unordered_map>
 
 #include "cli/helpers.h"
-#include "core/randomdatamonitor.h"
 #include "core/jsonparser.h"
-#include "cli/mainapplication.h"
-
+#include "core/randomdatamonitor.h"
 
 namespace PRISM_CLI {
 
@@ -36,7 +36,7 @@ void pollingCallback(SensorMap& sensors) {
 void mainLoop(const char* configPath) {
     // set up all the sensors
     SensorMap sensors;
-    
+
     // parse config. Will throw exception if config cannot be parsed
     PRISM::JSONParser::Value config = parseConfig(std::string(configPath));
 

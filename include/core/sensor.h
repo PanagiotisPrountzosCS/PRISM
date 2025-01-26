@@ -12,8 +12,8 @@ namespace PRISM {
 
 class Sensor {
 public:
-    Sensor(std::string name, SensorType type,
-            DataMonitorType dataMonitorType, RealValue upperLimit, RealValue lowerLimit, std::string unit);  // Creates sensor with new unique ID
+    Sensor(std::string name, SensorType type, DataMonitorType dataMonitorType, RealValue upperLimit,
+           RealValue lowerLimit, std::string unit);  // Creates sensor with new unique ID
 
     // Getters
     const std::string& getName() const;
