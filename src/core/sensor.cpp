@@ -103,18 +103,24 @@ RealValue Sensor::getYByIndex(size_t index) const {
 void Sensor::appendMeasurement(Measurement m) { _measurements.push_back(m); }
 
 void Sensor::saveMeasurements() {
-    // Get the current time as a string
-    auto now = std::chrono::system_clock::now();
-    auto time_t_now = std::chrono::system_clock::to_time_t(now);
-    std::tm* tm_now = std::localtime(&time_t_now);
-    
-    // Create a unique filename using the current time
-    std::ostringstream filename;
-    filename << "prism_log_"
-             << std::put_time(tm_now, "%Y%m%d_%H%M%S") // Format: YYYYMMDD_HHMMSS
-             << ".txt";
+    // Check if the filename has already been generated
+    static bool filenameGenerated = false;
+    static std::string filename;
 
-    std::ofstream file(filename.str(), std::ios::app);
+    if (!filenameGenerated) {
+        // Get the current time as a string
+        auto now = std::chrono::system_clock::now();
+        auto time_t_now = std::chrono::system_clock::to_time_t(now);
+        std::tm* tm_now = std::localtime(&time_t_now);
+        
+        // Create a unique filename using the current time
+        filename = "prism_log_"
+                   + std::to_string(time_t_now) // Use timestamp as a unique identifier
+                   + ".txt";
+        filenameGenerated = true;
+    }
+
+    std::ofstream file(filename, std::ios::app);
     file << "{\nSensor: " << _name << "\n";
     file << "Type: " << sensorTypeToString[_type] << "\n";
     file << "Unit: " << _unit << "\n";

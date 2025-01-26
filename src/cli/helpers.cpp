@@ -91,6 +91,7 @@ void validateConfig(const PRISM::JSONParser::Value& config) {
 }
 
 void createSensors(const PRISM::JSONParser::Value& config, SensorMap& sensors) {
+    size_t sensorCount = 0;
     try {
         for (const auto& sensor : config.array_val) {
             auto name = sensor.object_val.find("name")->second.str_val;
@@ -128,13 +129,14 @@ void createSensors(const PRISM::JSONParser::Value& config, SensorMap& sensors) {
                                         unit);
 
                 sensors.emplace(newSensor.getId(), newSensor);
+                sensorCount++;
 
                 std::cout << "Sensor " << name << " is active\n";
             } else {
                 std::cout << "Sensor " << name << " is not active\n";
             }
         }
-        std::cout << "Sensors created successfully\n";
+        std::cout << sensorCount << " sensors created successfully\n";
     } catch (const std::exception& e) {
         std::cerr << "Error creating sensors: " << e.what() << std::endl;
         exit(1);

@@ -4,12 +4,32 @@
 #include <iostream>
 #include <thread>
 #include <unordered_map>
+#include <csignal>
+#include <cstdlib>
 
 #include "cli/helpers.h"
 #include "core/jsonparser.h"
 #include "core/randomdatamonitor.h"
 
 namespace PRISM_CLI {
+
+bool shouldRun{true};
+
+void handleSignal(int signal) {
+    if (signal == SIGINT) {
+        std::cout << "\nCaught SIGINT (Ctrl + C). Exiting gracefully...\n";
+        shouldRun = false;
+    }
+}
+
+void cleanup(SensorMap& sensors) {
+    std::cout << "Cleaning up resources...\n";
+    for (auto& [id, sensor] : sensors) {
+        sensor.saveMeasurements();
+        sensor.clear();
+        sensor.freeHeap();
+    }
+}
 
 void pollingCallback(SensorMap& sensors) {
     for (auto& [id, sensor] : sensors) {
@@ -26,6 +46,9 @@ void pollingCallback(SensorMap& sensors) {
 }
 
 void mainLoop(const char* configPath) {
+    // Set up the signal handler
+    std::signal(SIGINT, handleSignal);
+
     // set up all the sensors
     SensorMap sensors;
 
@@ -38,7 +61,6 @@ void mainLoop(const char* configPath) {
     // create sensors
     createSensors(config, sensors);
 
-    bool shouldRun{true};
     // main loop
     auto startTime = std::chrono::high_resolution_clock::now();
 
@@ -53,6 +75,8 @@ void mainLoop(const char* configPath) {
         }
         std::this_thread::sleep_for(threadSleepTime_ms);
     }
+
+    cleanup(sensors);
 }
 
 }  // namespace PRISM_CLI
