@@ -1,5 +1,3 @@
-#include "cli/helpers.h"
-
 #include <algorithm>
 #include <fstream>
 #include <iostream>
@@ -7,18 +5,9 @@
 #include <stdexcept>
 
 #include "core/jsonparser.h"
+#include "cli/helpers.h"
 
 namespace PRISM_CLI {
-
-std::map<std::string, PRISM::DataMonitorType> dataMonitorTypeMap = {
-    {"file", PRISM::DataMonitorType::FILE},
-    {"random", PRISM::DataMonitorType::RANDOM},
-    {"url", PRISM::DataMonitorType::URL}};
-
-std::map<std::string, PRISM::SensorType> sensorTypeMap = {
-    {"co2", PRISM::SensorType::CO2},
-    {"pressure", PRISM::SensorType::PRESSURE},
-    {"temperature", PRISM::SensorType::TEMPERATURE}};
 
 PRISM::JSONParser::Value parseConfig(const std::string& config) {
     std::ifstream configFile(config);
@@ -125,15 +114,15 @@ void createSensors(const PRISM::JSONParser::Value& config, SensorMap& sensors) {
                     throw std::runtime_error("Upper limit is less than lower limit");
                 }
 
-                if (dataMonitorTypeMap.find(dataMonitor) == dataMonitorTypeMap.end()) {
+                if (PRISM::stringToDataMonitorType.find(dataMonitor) == PRISM::stringToDataMonitorType.end()) {
                     throw std::runtime_error("Invalid data monitor");
                 }
 
-                if (sensorTypeMap.find(type) == sensorTypeMap.end()) {
+                if (PRISM::stringToSensorType.find(type) == PRISM::stringToSensorType.end()) {
                     throw std::runtime_error("Invalid sensor type");
                 }
-                auto dataMonitorEnum = dataMonitorTypeMap[dataMonitor];
-                auto typeEnum = sensorTypeMap[type];
+                auto dataMonitorEnum = PRISM::stringToDataMonitorType[dataMonitor];
+                auto typeEnum = PRISM::stringToSensorType[type];
 
                 PRISM::Sensor newSensor(name, typeEnum, dataMonitorEnum, upperLimit, lowerLimit,
                                         unit);

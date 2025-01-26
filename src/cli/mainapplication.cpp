@@ -11,24 +11,16 @@
 
 namespace PRISM_CLI {
 
-bool shouldRun{true};
-
 void pollingCallback(SensorMap& sensors) {
-    for (auto& sensor : sensors) {
-        std::cout << "============ Polling " << sensor.second.getName() << " ============\n";
-        sensor.second.poll();
-        std::cout << "======= Done polling " << sensor.second.getName() << " =============\n\n";
+    for (auto& [id, sensor] : sensors) {
+        std::cout << "============ Polling " << sensor.getName() << " ============\n";
+        sensor.poll();
+        std::cout << "======= Done polling " << sensor.getName() << " =============\n\n";
 
-        if (sensor.second.size() >= maxMeasurements) {
-            std::cout << sensor.second.getName() << '\n';
-            for (size_t i = 0; i < maxMeasurements; ++i) {
-                std::cout << "(" << sensor.second.getMeasurementByIndex(i).readTime_us << ", "
-                          << sensor.second.getMeasurementByIndex(i).value << ")\n";
-            }
-            // save measurements to file
-            // then clear the sensor
-            sensor.second.clear();
-            sensor.second.freeHeap();
+        if (sensor.size() >= maxMeasurements) {
+            sensor.saveMeasurements();
+            sensor.clear();
+            sensor.freeHeap();
         }
     }
 }
@@ -46,6 +38,7 @@ void mainLoop(const char* configPath) {
     // create sensors
     createSensors(config, sensors);
 
+    bool shouldRun{true};
     // main loop
     auto startTime = std::chrono::high_resolution_clock::now();
 

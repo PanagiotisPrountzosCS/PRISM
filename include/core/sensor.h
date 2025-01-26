@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -9,6 +10,14 @@
 #include "objectid.h"
 
 namespace PRISM {
+
+extern std::map<std::string, PRISM::DataMonitorType> stringToDataMonitorType;
+
+extern std::map<std::string, PRISM::SensorType> stringToSensorType;
+
+extern std::map<PRISM::DataMonitorType, std::string> dataMonitorTypeToString;
+
+extern std::map<PRISM::SensorType, std::string> sensorTypeToString;
 
 class Sensor {
 public:
@@ -27,6 +36,7 @@ public:
     Time getXByIndex(size_t index) const;
     RealValue getYByIndex(size_t index) const;
     void appendMeasurement(Measurement m);
+    void saveMeasurements();
     void clear();
     void freeHeap();
     void poll();
