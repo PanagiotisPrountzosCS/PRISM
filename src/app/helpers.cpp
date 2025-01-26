@@ -1,3 +1,5 @@
+#include "app/helpers.h"
+
 #include <algorithm>
 #include <fstream>
 #include <iostream>
@@ -5,9 +7,8 @@
 #include <stdexcept>
 
 #include "core/jsonparser.h"
-#include "cli/helpers.h"
 
-namespace PRISM_CLI {
+namespace PRISM {
 
 PRISM::JSONParser::Value parseConfig(const std::string& config) {
     std::ifstream configFile(config);
@@ -81,6 +82,29 @@ void validateConfig(const PRISM::JSONParser::Value& config) {
                 unit->second.str_val.empty()) {
                 throw std::runtime_error("Sensor is missing unit");
             }
+            if (upperLimit->second.num_val <= lowerLimit->second.num_val) {
+                throw std::runtime_error("Upper limit is less than lower limit");
+            }
+
+            // convert dataMonitor to lowercase then to enum
+            // same for type
+            std::string dataMonitorStr = dataMonitor->second.str_val;
+            std::string typeStr = type->second.str_val;
+
+            std::transform(dataMonitorStr.begin(), dataMonitorStr.end(), dataMonitorStr.begin(),
+                           [](unsigned char c) { return std::tolower(c); });
+
+            std::transform(typeStr.begin(), typeStr.end(), typeStr.begin(),
+                           [](unsigned char c) { return std::tolower(c); });
+
+            if (PRISM::stringToDataMonitorType.find(dataMonitorStr) ==
+                PRISM::stringToDataMonitorType.end()) {
+                throw std::runtime_error("Invalid data monitor");
+            }
+
+            if (PRISM::stringToSensorType.find(typeStr) == PRISM::stringToSensorType.end()) {
+                throw std::runtime_error("Invalid sensor type");
+            }
         }
     } catch (const std::exception& e) {
         std::cerr << "Error validating config: " << e.what() << std::endl;
@@ -90,7 +114,9 @@ void validateConfig(const PRISM::JSONParser::Value& config) {
     std::cout << "Config syntax validated successfully\n";
 }
 
-void createSensors(const PRISM::JSONParser::Value& config, SensorMap& sensors) {
+std::shared_ptr<SensorMap> createSensors(const PRISM::JSONParser::Value& config) {
+    size_t sensorCount = 0;
+    std::shared_ptr<SensorMap> sensors = std::make_shared<SensorMap>();
     try {
         for (const auto& sensor : config.array_val) {
             auto name = sensor.object_val.find("name")->second.str_val;
@@ -101,44 +127,27 @@ void createSensors(const PRISM::JSONParser::Value& config, SensorMap& sensors) {
             auto dataMonitor = sensor.object_val.find("dataMonitor")->second.str_val;
             auto unit = sensor.object_val.find("unit")->second.str_val;
 
-            // convert dataMonitor to lowercase then to enum
-            // same for type
-            std::transform(dataMonitor.begin(), dataMonitor.end(), dataMonitor.begin(),
-                           [](unsigned char c) { return std::tolower(c); });
-
-            std::transform(type.begin(), type.end(), type.begin(),
-                           [](unsigned char c) { return std::tolower(c); });
-
             if (isActive) {
-                if (upperLimit <= lowerLimit) {
-                    throw std::runtime_error("Upper limit is less than lower limit");
-                }
-
-                if (PRISM::stringToDataMonitorType.find(dataMonitor) == PRISM::stringToDataMonitorType.end()) {
-                    throw std::runtime_error("Invalid data monitor");
-                }
-
-                if (PRISM::stringToSensorType.find(type) == PRISM::stringToSensorType.end()) {
-                    throw std::runtime_error("Invalid sensor type");
-                }
                 auto dataMonitorEnum = PRISM::stringToDataMonitorType[dataMonitor];
                 auto typeEnum = PRISM::stringToSensorType[type];
 
                 PRISM::Sensor newSensor(name, typeEnum, dataMonitorEnum, upperLimit, lowerLimit,
                                         unit);
 
-                sensors.emplace(newSensor.getId(), newSensor);
+                sensors->emplace(newSensor.getId(), newSensor);
+                sensorCount++;
 
                 std::cout << "Sensor " << name << " is active\n";
             } else {
                 std::cout << "Sensor " << name << " is not active\n";
             }
         }
-        std::cout << "Sensors created successfully\n";
+        std::cout << sensorCount << " sensors created successfully\n";
     } catch (const std::exception& e) {
         std::cerr << "Error creating sensors: " << e.what() << std::endl;
         exit(1);
     }
+    return sensors;
 }
 
-}  // namespace PRISM_CLI
+}  // namespace PRISM

@@ -22,6 +22,6 @@ PRISM::JSONParser::Value parseConfig(const std::string& config);
 
 void validateConfig(const PRISM::JSONParser::Value& config);
 
-void createSensors(const PRISM::JSONParser::Value& config, SensorMap& sensors);
+std::shared_ptr<SensorMap> createSensors(const PRISM::JSONParser::Value& config);
 
 }  // namespace PRISM
