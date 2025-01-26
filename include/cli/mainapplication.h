@@ -8,7 +8,7 @@ namespace PRISM_CLI {
 
 using SensorMap = std::unordered_map<PRISM::ObjectId, PRISM::Sensor, PRISM::ObjectIdHash>;
 
-void mainLoop();
+void mainLoop(const char* configPath);
 
 void pollingCallback(const SensorMap& sensors);
 

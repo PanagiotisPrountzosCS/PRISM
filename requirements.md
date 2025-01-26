@@ -1,4 +1,4 @@
-# Sensor Monitoring System Requirements
+#Sensor Monitoring System Requirements
 
 ## System Overview
 Real-time sensor monitoring system designed to collect, process, analyze, and visualize data from multiple sensors, with forecasting capabilities.
@@ -86,14 +86,14 @@ Real-time sensor monitoring system designed to collect, process, analyze, and vi
 
 cpp
 struct Measurement {
-    int64_t timestamp; // Unix timestamp in microseconds
-    double value; // Measurement value
-    ObjectId sensorId; // Sensor identifier
-    uint64_t sequence; // Sequence number
-    struct Metadata { // Optional metadata
+    int64_t timestamp;  // Unix timestamp in microseconds
+    double value;       // Measurement value
+    ObjectId sensorId;  // Sensor identifier
+    uint64_t sequence;  // Sequence number
+    struct Metadata {   // Optional metadata
         int64_t readTime;
         int64_t processTime;
-} metadata;
+    } metadata;
 };
 
 ### 3. Storage Requirements

@@ -1,4 +1,3 @@
-# PRISM Licensing
+#PRISM Licensing
 
-## Core Library and CLI Application
-##TO DO: Add license
+##Core Library and CLI Application##TO DO : Add license

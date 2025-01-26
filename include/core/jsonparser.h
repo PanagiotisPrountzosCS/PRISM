@@ -7,7 +7,7 @@
 namespace PRISM{
     class JSONParser{
         public:
-        enum Type {Null, Bool, Number, String, Array, Object};
+        enum Type {Null, Boolean, Number, String, Array, Object};
         class Value{
             public:
             Type type;

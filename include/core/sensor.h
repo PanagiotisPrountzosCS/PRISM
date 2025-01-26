@@ -19,8 +19,8 @@ public:
     // Getters
     const std::string& getName() const;
     ObjectId getId() const;
-    double getLastValue() const;
-    int64_t getLastTimestamp() const;
+    RealValue getLastValue() const;
+    Time getLastTimestamp() const;
     SensorType getType() const;
 
     Measurement createMeasurement(RealValue value, Time timestamp_us);

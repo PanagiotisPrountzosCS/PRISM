@@ -19,14 +19,14 @@ namespace PRISM{
         if (c == 't' && json.substr(pos, 4) == "true") {
             pos += 4;
             Value v;
-            v.type = Bool;
+            v.type = Boolean;
             v.bool_val = true;
             return v;
         }
         if (c == 'f' && json.substr(pos, 5) == "false") {
             pos += 5;
             Value v;
-            v.type = Bool;
+            v.type = Boolean;
             v.bool_val = false;
             return v;
         }

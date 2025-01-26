@@ -4,9 +4,8 @@
 #include <iostream>
 #include <thread>
 #include <unordered_map>
-#include <fstream>
-#include <sstream>
-#include "cli/variables.h"
+
+#include "cli/helpers.h"
 #include "core/objectid.h"
 #include "core/randomdatamonitor.h"
 #include "core/sensor.h"
@@ -14,6 +13,8 @@
 #include "core/jsonparser.h"
 
 namespace PRISM_CLI {
+
+bool shouldRun{true};
 
 void pollingCallback(SensorMap& sensors) {
     for (auto& sensor : sensors) {
@@ -35,33 +36,18 @@ void pollingCallback(SensorMap& sensors) {
     }
 }
 
-void mainLoop() {
+void mainLoop(const char* configPath) {
     // set up all the sensors
     SensorMap sensors;
+    
+    // parse config. Will throw exception if config cannot be parsed
+    PRISM::JSONParser::Value config = parseConfig(std::string(configPath));
 
-    std::ifstream configFile("config.json");
-    std::stringstream configBuffer;
-    configBuffer << configFile.rdbuf();
+    // validate config. Will throw exception if config is invalid
+    validateConfig(config);
 
-    try{
-        PRISM::JSONParser::Value config = PRISM::JSONParser::Value::parse(configBuffer.str());
-
-        std::cout << "Config parsed successfully\n";
-
-        if(!validateConfig(config)) {
-            std::cerr << "Invalid config file\n";
-            return;
-        }
-
-        // create the sensors
-        for (const auto& sensor : config.array_val) {
-            //create sensor here
-        }
-    }
-    catch (const std::exception& e){
-        std::cerr << "Error parsing config file: " << e.what() << std::endl;
-        return;
-    }
+    // create sensors
+    createSensors(config, sensors);
 
     // main loop
     auto startTime = std::chrono::high_resolution_clock::now();
