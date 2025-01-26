@@ -13,7 +13,7 @@ Sensor::Sensor(std::string name, SensorType type, DataMonitorType dataMonitorTyp
             // TODO: Implement file data monitor
         } 
         else if (dataMonitorType == DataMonitorType::RANDOM) {
-            auto randomNumberFactory = std::make_shared<RandomNumberFactory>(upperLimit, lowerLimit, ProbabilityDistribution::NORMAL);
+            auto randomNumberFactory = std::make_shared<RandomNumberFactory>(lowerLimit, upperLimit, ProbabilityDistribution::NORMAL);
             _dataMonitor = std::make_shared<RandomDataMonitor>(randomNumberFactory);
         }
         else if (dataMonitorType == DataMonitorType::URL) {
@@ -88,14 +88,6 @@ void Sensor::poll() {
             appendMeasurement(newMeasurement);
         }
     }
-
-    // auto randomNumberFactory = RandomNumberFactory(50, 100, ProbabilityDistribution::NORMAL);
-
-    // auto newMeasurement = createMeasurement(randomNumberFactory.createRandomNumber(),
-    //                                         randomNumberFactory.createRandomNumber());
-    // appendMeasurement(newMeasurement);
-    // std::cout << _name << " contains (" << newMeasurement.timestamp_us << ", "
-    //           << newMeasurement.value << ")\n";
 }
 
 size_t Sensor::size() const { return _measurements.size(); }

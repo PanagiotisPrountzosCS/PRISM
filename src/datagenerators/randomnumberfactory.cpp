@@ -1,6 +1,5 @@
 #include "datagenerators/randomnumberfactory.h"
 
-#include <cassert>
 #include <memory>
 #include <random>
 #include <iostream>
@@ -17,7 +16,10 @@ RandomNumberFactory::RandomNumberFactory(RealValue lowerLimit, RealValue upperLi
 }
 
 void PRISM::RandomNumberFactory::update() {
-    assert(_lowerLimit <= _upperLimit && "LOWER LIMIT MUST BE LESS THAN UPPER LIMIT\n");
+    if(_lowerLimit > _upperLimit) {
+        std::cerr << "Lower limit must be less than upper limit\n";
+        exit(1);
+    }
     std::random_device rd{};
     _randomNumberGenerator = std::mt19937_64{rd()};
     // chose a distribution afterwards;
