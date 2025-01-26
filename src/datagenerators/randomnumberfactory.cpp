@@ -1,9 +1,9 @@
-#include "datagenerators/randomnumberfactory.h"
-
 #include <memory>
 #include <random>
 #include <iostream>
-#include "globaldefinitions.h"
+
+#include "datagenerators/randomnumberfactory.h"
+
 
 namespace PRISM {
 

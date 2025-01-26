@@ -12,7 +12,7 @@ using SensorMap = std::unordered_map<PRISM::ObjectId, PRISM::Sensor, PRISM::Obje
 
 constexpr auto pollInterval_ms = std::chrono::milliseconds(10);
 
-constexpr uint32_t threadSleepTime_ms = 9;
+constexpr auto threadSleepTime_ms = std::chrono::milliseconds(9);
 
 constexpr size_t maxMeasurements = 1000;
 

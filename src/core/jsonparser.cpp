@@ -1,6 +1,7 @@
+#include <stdexcept>
+
 #include "core/jsonparser.h"
 
-#include <stdexcept>
 namespace PRISM{
     JSONParser::Value JSONParser::Value::parse(const std::string& json){
         size_t pos = 0;

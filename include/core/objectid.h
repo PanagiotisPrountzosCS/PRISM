@@ -8,7 +8,7 @@ namespace PRISM {
 class ObjectId {
 public:
     ObjectId();                         // Generates new unique ID
-    explicit ObjectId(uint64_t value);  // For special cases like deserialization
+    explicit ObjectId(uint64_t value);  // For special cases
 
     uint64_t getValue() const;
     std::string toString() const;
@@ -19,7 +19,7 @@ public:
 
 private:
     uint64_t _id;
-    static uint64_t _nextId;  // Counter for generating unique IDs
+    static uint64_t _nextId;  // Counter for unique IDs
 };
 
 class ObjectIdHash {

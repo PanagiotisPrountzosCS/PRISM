@@ -1,7 +1,5 @@
 #include "core/randomdatamonitor.h"
 
-#include "datagenerators/randomnumberfactory.h"
-
 namespace PRISM {
 
 RandomDataMonitor::RandomDataMonitor(std::shared_ptr<RandomNumberFactory> randomNumberFactory)

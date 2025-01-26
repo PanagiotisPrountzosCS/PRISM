@@ -1,16 +1,13 @@
-#include "cli/mainapplication.h"
-
 #include <chrono>
 #include <iostream>
 #include <thread>
 #include <unordered_map>
 
 #include "cli/helpers.h"
-#include "core/objectid.h"
 #include "core/randomdatamonitor.h"
-#include "core/sensor.h"
-#include "datagenerators/randomnumberfactory.h"
 #include "core/jsonparser.h"
+#include "cli/mainapplication.h"
+
 
 namespace PRISM_CLI {
 
@@ -61,7 +58,7 @@ void mainLoop(const char* configPath) {
             pollingCallback(sensors);  // poll
             startTime = currentTime;   // reset the timer
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(threadSleepTime_ms));
+        std::this_thread::sleep_for(threadSleepTime_ms);
     }
 }
 

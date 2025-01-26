@@ -1,5 +1,3 @@
-#include "cli/helpers.h"
-
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -7,6 +5,8 @@
 #include <algorithm>
 
 #include "core/jsonparser.h"
+#include "cli/helpers.h"
+
 
 namespace PRISM_CLI {
 

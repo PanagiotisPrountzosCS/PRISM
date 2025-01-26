@@ -4,6 +4,7 @@
 
 #include "core/idatamonitor.h"
 #include "datagenerators/randomnumberfactory.h"
+
 namespace PRISM {
 
 class RandomDataMonitor : public IDataMonitor {

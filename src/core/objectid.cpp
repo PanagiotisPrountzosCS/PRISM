@@ -1,6 +1,6 @@
-#include "core/objectid.h"
-
 #include <sstream>
+
+#include "core/objectid.h"
 
 namespace PRISM {
 

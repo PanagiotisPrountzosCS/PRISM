@@ -1,10 +1,9 @@
-#include "core/sensor.h"
-
 #include <chrono>
 #include <iostream>
 
-#include "datagenerators/randomnumberfactory.h"
 #include "core/randomdatamonitor.h"
+#include "core/sensor.h"
+
 namespace PRISM {
 
 Sensor::Sensor(std::string name, SensorType type, DataMonitorType dataMonitorType, RealValue upperLimit, RealValue lowerLimit, std::string unit )

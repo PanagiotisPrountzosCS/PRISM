@@ -1,11 +1,10 @@
 #pragma once
 
-#include <memory>  // Include for smart pointers
+#include <memory>
 #include <string>
 #include <vector>
 
 #include "core/idatamonitor.h"
-#include "globaldefinitions.h"
 #include "measurement.h"
 #include "objectid.h"
 
