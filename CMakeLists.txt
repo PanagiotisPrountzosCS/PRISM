@@ -21,8 +21,10 @@ set(CORE_SOURCES
 	${SOURCE_DIR}/core/objectid.cpp
 	${SOURCE_DIR}/core/sensor.cpp
 	${SOURCE_DIR}/core/randomdatamonitor.cpp
-	${SOURCE_DIR}/datagenerators/randomnumberfactory.cpp
 	${SOURCE_DIR}/core/jsonparser.cpp
+	${SOURCE_DIR}/datagenerators/randomnumberfactory.cpp
+	${SOURCE_DIR}/app/helpers.cpp
+	${SOURCE_DIR}/app/mainapplication.cpp
 )
 
 set(TEST_SOURCES
@@ -33,8 +35,6 @@ set(TEST_SOURCES
 )
 
 set(CLI_SOURCES
-	${SOURCE_DIR}/cli/mainapplication.cpp
-	${SOURCE_DIR}/cli/helpers.cpp
 )
 
 set(GUI_SOURCES
@@ -63,7 +63,7 @@ target_include_directories(prism_core PRIVATE ${INCLUDE_DIR})
 
 # CLI Application
 
-add_executable(prism_cli src/cli/main.cpp ${CLI_SOURCES})
+add_executable(prism_cli src/cli/main.cpp)
 target_include_directories(prism_cli PRIVATE ${INCLUDE_DIR})
 target_link_libraries(prism_cli PRIVATE prism_core)
 
