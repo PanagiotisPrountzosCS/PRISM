@@ -2,9 +2,9 @@
 
 #include <chrono>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <iomanip>
 
 #include "core/randomdatamonitor.h"
 
@@ -112,10 +112,10 @@ void Sensor::saveMeasurements() {
         auto now = std::chrono::system_clock::now();
         auto time_t_now = std::chrono::system_clock::to_time_t(now);
         std::tm* tm_now = std::localtime(&time_t_now);
-        
+
         // Create a unique filename using the current time
-        filename = "prism_log_"
-                   + std::to_string(time_t_now) // Use timestamp as a unique identifier
+        filename = "prism_log_" +
+                   std::to_string(time_t_now)  // Use timestamp as a unique identifier
                    + ".txt";
         filenameGenerated = true;
     }
@@ -129,7 +129,8 @@ void Sensor::saveMeasurements() {
     file << "Data Monitor Type: " << dataMonitorTypeToString[_dataMonitorType] << "\n";
     file << "Measurements: \n";
     for (const auto& measurement : _measurements) {
-        file << measurement.readTime_us << ", " << measurement.timestamp_us << ", " << measurement.value << "\n";
+        file << measurement.readTime_us << ", " << measurement.timestamp_us << ", "
+             << measurement.value << "\n";
     }
     file << "}\n";
 }

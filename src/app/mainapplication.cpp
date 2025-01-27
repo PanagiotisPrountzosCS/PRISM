@@ -1,38 +1,52 @@
-#include "cli/mainapplication.h"
+#include "app/mainapplication.h"
 
 #include <chrono>
+#include <csignal>
+#include <cstdlib>
 #include <iostream>
 #include <thread>
 #include <unordered_map>
-#include <csignal>
-#include <cstdlib>
 
-#include "cli/helpers.h"
+#include "app/helpers.h"
 #include "core/jsonparser.h"
 #include "core/randomdatamonitor.h"
 
-namespace PRISM_CLI {
+namespace PRISM {
 
 bool shouldRun{true};
 
-void handleSignal(int signal) {
+void sigintHandler(int signal) {
     if (signal == SIGINT) {
         std::cout << "\nCaught SIGINT (Ctrl + C). Exiting gracefully...\n";
         shouldRun = false;
     }
 }
 
-void cleanup(SensorMap& sensors) {
+std::shared_ptr<SensorMap> initApp(const char* configPath) {
+    // Set up the signal handler
+    std::signal(SIGINT, sigintHandler);
+
+    // parse config. Will throw exception if config cannot be parsed
+    PRISM::JSONParser::Value config = parseConfig(std::string(configPath));
+
+    // validate config. Will throw exception if config is invalid
+    validateConfig(config);
+    // create sensors
+    auto sensors = createSensors(config);
+    return sensors;
+}
+
+void cleanup(std::shared_ptr<SensorMap> sensors) {
     std::cout << "Cleaning up resources...\n";
-    for (auto& [id, sensor] : sensors) {
+    for (auto& [id, sensor] : *sensors) {
         sensor.saveMeasurements();
         sensor.clear();
         sensor.freeHeap();
     }
 }
 
-void pollingCallback(SensorMap& sensors) {
-    for (auto& [id, sensor] : sensors) {
+void pollingCallback(std::shared_ptr<SensorMap> sensors) {
+    for (auto& [id, sensor] : *sensors) {
         std::cout << "============ Polling " << sensor.getName() << " ============\n";
         sensor.poll();
         std::cout << "======= Done polling " << sensor.getName() << " =============\n\n";
@@ -45,22 +59,7 @@ void pollingCallback(SensorMap& sensors) {
     }
 }
 
-void mainLoop(const char* configPath) {
-    // Set up the signal handler
-    std::signal(SIGINT, handleSignal);
-
-    // set up all the sensors
-    SensorMap sensors;
-
-    // parse config. Will throw exception if config cannot be parsed
-    PRISM::JSONParser::Value config = parseConfig(std::string(configPath));
-
-    // validate config. Will throw exception if config is invalid
-    validateConfig(config);
-
-    // create sensors
-    createSensors(config, sensors);
-
+void mainLoop(std::shared_ptr<SensorMap> sensors) {
     // main loop
     auto startTime = std::chrono::high_resolution_clock::now();
 
@@ -79,4 +78,4 @@ void mainLoop(const char* configPath) {
     cleanup(sensors);
 }
 
-}  // namespace PRISM_CLI
+}  // namespace PRISM
