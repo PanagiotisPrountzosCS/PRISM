@@ -139,7 +139,7 @@ void Sensor::clear() { _measurements.clear(); }
 
 void Sensor::freeHeap() { _measurements.shrink_to_fit(); }
 
-void Sensor::poll() {
+void Sensor::pollAndUpdate() {
     if (_dataMonitor->poll()) {
         while (_dataMonitor->size() > 0) {
             auto nextPoint = _dataMonitor->getNextMeasurement();

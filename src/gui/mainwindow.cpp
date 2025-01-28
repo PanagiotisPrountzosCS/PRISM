@@ -11,8 +11,9 @@
 namespace PRISM {
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
+    auto pollInterval_ms_int = pollInterval_ms.count();
     _pollTimer = new QTimer(this);
-    _pollTimer->start(500);
+    _pollTimer->start(pollInterval_ms_int);
     connect(_pollTimer, &QTimer::timeout, this, &MainWindow::pollingCallback);
 }
 
@@ -25,7 +26,17 @@ void sigintHandler(int signal) {
     }
 }
 
-void MainWindow::pollingCallback() { std::cout << "Callback\n"; }
+void MainWindow::pollingCallback() {
+    for (auto& [id, sensor] : *_sensors) {
+        sensor.pollAndUpdate();
+        if (sensor.size() >= maxMeasurements) {
+            sensor.saveMeasurements();
+            sensor.clear();
+            sensor.freeHeap();
+        }
+    }
+    //also update current sensor in gui
+}
 
 void MainWindow::cleanup() {
     std::cout << "Cleaning up resources...\n";

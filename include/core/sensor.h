@@ -39,7 +39,7 @@ public:
     void saveMeasurements();
     void clear();
     void freeHeap();
-    void poll();
+    void pollAndUpdate();
     size_t size() const;
 
 private:

@@ -48,7 +48,7 @@ void cleanup(std::shared_ptr<SensorMap> sensors) {
 void pollingCallback(std::shared_ptr<SensorMap> sensors) {
     for (auto& [id, sensor] : *sensors) {
         std::cout << "============ Polling " << sensor.getName() << " ============\n";
-        sensor.poll();
+        sensor.pollAndUpdate();
         std::cout << "======= Done polling " << sensor.getName() << " =============\n\n";
 
         if (sensor.size() >= maxMeasurements) {
@@ -69,7 +69,7 @@ void mainLoop(std::shared_ptr<SensorMap> sensors) {
             std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime);
 
         if (elapsed > pollInterval_ms) {
-            pollingCallback(sensors);  // poll
+            pollingCallback(sensors);  // pollAndUpdate
             startTime = currentTime;   // reset the timer
         }
         std::this_thread::sleep_for(threadSleepTime_ms);
