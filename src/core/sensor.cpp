@@ -61,7 +61,7 @@ PRISM::RealValue Sensor::getLastValue() const { return _lastValue; }
 
 PRISM::Time Sensor::getLastTimestamp() const { return _lastTimestamp; }
 
-Measurement Sensor::createMeasurement(RealValue value, Time timestamp_us) {
+Measurement Sensor::createMeasurement(Time timestamp_us, RealValue value) {
     Measurement m;
     m.timestamp_us = timestamp_us;
     m.value = value;
@@ -114,7 +114,7 @@ void Sensor::saveMeasurements() {
         std::tm* tm_now = std::localtime(&time_t_now);
 
         // Create a unique filename using the current time
-        filename = "prism_log_" +
+        filename = "logs/prism_log_" +
                    std::to_string(time_t_now)  // Use timestamp as a unique identifier
                    + ".txt";
         filenameGenerated = true;

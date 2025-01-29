@@ -31,7 +31,7 @@ public:
     Time getLastTimestamp() const;
     SensorType getType() const;
 
-    Measurement createMeasurement(RealValue value, Time timestamp_us);
+    Measurement createMeasurement(Time timestamp_us, RealValue value);
     Measurement getMeasurementByIndex(size_t index) const;
     Time getXByIndex(size_t index) const;
     RealValue getYByIndex(size_t index) const;

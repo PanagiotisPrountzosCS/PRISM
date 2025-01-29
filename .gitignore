@@ -3,4 +3,4 @@ build
 todo
 massif.*
 config.json
-prism_log*
+logs/prism_log*
