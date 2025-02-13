@@ -1,89 +1,132 @@
 #include "gui/mainwindow.h"
 
 #include <QChartView>
-#include <QHBoxLayout>
+#include <QCoreApplication>
+#include <QLabel>
 #include <QLineSeries>
+#include <QTimer>
+#include <csignal>
+#include <cstdlib>
+#include <iostream>
 
-MainWindow::MainWindow(QWidget *parent)
+#include "app/helpers.h"
+
+namespace PRISM {
+
+MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent),
-      listWidget(new QListWidget(this)),
-      stackedWidget(new QStackedWidget(this)),
-      centralWidget(new QWidget(this)) {
-    // Set up the central widget and layout
-    setCentralWidget(centralWidget);
-    QHBoxLayout *layout = new QHBoxLayout;  // Use horizontal layout
+      _centralWidget(new QWidget(this)),
+      _hBoxLayout(std::make_shared<QHBoxLayout>()) {
+    setCentralWidget(_centralWidget);
+    auto pollInterval_ms_int = pollInterval_ms.count();
+    _pollTimer = std::make_shared<QTimer>(this);
+    _pollTimer->start(pollInterval_ms_int);
+    connect(_pollTimer.get(), &QTimer::timeout, this, &MainWindow::pollingCallback);
+}
 
-    // Set up the list widget with options
-    for (int i = 0; i < 200; ++i) {
-        listWidget->addItem(QString("Chart %1").arg(i + 1));  // Add 200 items
+MainWindow::~MainWindow() {}
+
+void sigintHandler(int signal) {
+    if (signal == SIGINT) {
+        std::cout << "\nCaught SIGINT (Ctrl + C). Exiting gracefully...\n";
+        QCoreApplication::quit();
     }
-
-    // Set size policy to allow the list widget to expand vertically
-    listWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    listWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);  // Enable scrollbar if needed
-
-    // Set maximum width for the list widget
-    listWidget->setMaximumWidth(200);  // Adjust this value as needed
-
-    // Connect the list widget signal to the slot
-    connect(listWidget, &QListWidget::itemClicked, this, &MainWindow::onListItemClicked);
-
-    // Add the list widget and stacked widget to the layout
-    layout->addWidget(listWidget);     // Add list widget to the left
-    layout->addWidget(stackedWidget);  // Add stacked widget to the right
-
-    centralWidget->setLayout(layout);  // Set the layout for the central widget
-
-    // Set the initial widget (first option)
-    stackedWidget->setCurrentIndex(0);  // Initially shows a placeholder
 }
 
-MainWindow::~MainWindow() {
-    clearCurrentChart();  // Clean up when closing the window
-}
-
-// Slot that gets triggered when a list item is clicked
-void MainWindow::onListItemClicked(QListWidgetItem *item) {
-    int index = listWidget->row(item);  // Get the index of the clicked item
-    clearCurrentChart();                // Clear the current chart
-    loadChart(index);                   // Load the new chart lazily
-}
-
-// Function to load the chart lazily based on the selected index
-void MainWindow::loadChart(int index) {
-    // Create the chart widget when needed
-    QChart *chart = new QChart();
-    chart->setTitle(QString("Chart %1").arg(index + 1));
-
-    // For demonstration, let's create a simple chart with random data
-    QLineSeries *series = new QLineSeries();
-    for (int i = 0; i < 5000; ++i) {
-        series->append(i, qSin(i * 1.0 / 1000));  // Generating random points
-    }
-    chart->addSeries(series);
-    chart->createDefaultAxes();
-    QAbstractAxis *yAxis = chart->axisY(series);
-    yAxis->setRange(-2, 2);
-
-    // Add the chart to the stacked widget
-    QChartView *chartView = new QChartView(chart);
-    stackedWidget->addWidget(chartView);
-
-    // Set the current index to show the newly loaded chart
-    stackedWidget->setCurrentIndex(index);
-    currentChart = chart;  // Track the current chart
-}
-
-// Function to clear the current chart to free memory
-void MainWindow::clearCurrentChart() {
-    if (currentChart) {
-        // Remove and delete the current chart (memory cleanup)
-        QList<QWidget *> widgets = stackedWidget->findChildren<QWidget *>();
-        for (QWidget *widget : widgets) {
-            stackedWidget->removeWidget(widget);
-            // if (widget)
-            // delete widget; // This ensures memory is freed
+void MainWindow::pollingCallback() {
+    for (auto& [id, sensor] : *_sensors) {
+        sensor.pollAndUpdate();
+        if (sensor.size() >= maxMeasurements) {
+            sensor.saveMeasurements();
+            sensor.clear();
+            sensor.freeHeap();
         }
-        currentChart = nullptr;  // Reset the current chart pointer
+    }
+    // also update current sensor in gui
+    onListItemClicked();
+}
+
+void MainWindow::onListItemClicked() {
+    QListWidgetItem* currentItem = _listWidget->currentItem();
+    if (currentItem) {
+        ObjectId id = currentItem->data(Qt::UserRole).value<ObjectId>();
+
+        // cleanCurrentChart();
+
+        updateChartView(id);
     }
 }
+
+void MainWindow::updateChartView(ObjectId id) {
+    QChart* newChart = new QChart();
+    auto sensor = _sensors->at(id);
+    newChart->setTitle(QString::fromStdString(sensor.getName()));
+
+    QLineSeries* newDataSeries = new QLineSeries();
+
+    double x, y;
+    for (int i = 0; i < sensor.size(); i++) {
+        x = sensor.getXByIndex(i);
+        y = sensor.getYByIndex(i);
+        newDataSeries->append(x, y);
+    }
+
+    newChart->addSeries(newDataSeries);
+    newChart->createDefaultAxes();
+
+    // if (sensor.size() > 0) {
+    //     float x0 = sensor.getXByIndex(0);
+    //     float x1 = sensor.getXByIndex(sensor.size() - 1);
+    //     newChart->axisX()->setRange(x0 - chartRangePadding, x1 + chartRangePadding);
+    // }
+
+    _chartView->setChart(newChart);
+}
+
+void MainWindow::cleanup() {
+    std::cout << "Cleaning up resources...\n";
+
+    for (auto& [id, sensor] : *_sensors) {
+        sensor.saveMeasurements();
+        sensor.clear();
+        sensor.freeHeap();
+    }
+}
+
+void MainWindow::initApp(const char* configPath) {
+    std::signal(SIGINT, sigintHandler);
+
+    PRISM::JSONParser::Value config = parseConfig(std::string(configPath));
+
+    validateConfig(config);
+
+    _sensors = createSensors(config);
+
+    initGui();
+}
+
+void MainWindow::initGui() {
+    if (_sensors->size() == 0) {
+        _hBoxLayout->addWidget(new QLabel("No sensors defined as active in config!"));
+        _hBoxLayout->setAlignment(Qt::AlignCenter);
+    } else {
+        _listWidget = std::make_shared<QListWidget>(this);
+        _listWidget->setMaximumWidth(200);
+        connect(_listWidget.get(), &QListWidget::itemSelectionChanged, this,
+                &MainWindow::onListItemClicked);
+
+        auto sortedSensors = std::map<ObjectId, Sensor>(_sensors->begin(), _sensors->end());
+        for (auto& [id, sensor] : sortedSensors) {
+            std::string name = id.toString() + " " + sensor.getName();
+            QListWidgetItem* item = new QListWidgetItem(QString::fromStdString(name));
+            item->setData(Qt::UserRole, QVariant::fromValue(id));
+            _listWidget->addItem(item);
+        }
+        _hBoxLayout->addWidget(_listWidget.get());
+        _chartView = new QChartView();
+        _hBoxLayout->addWidget(_chartView);
+    }
+    _centralWidget->setLayout(_hBoxLayout.get());
+}
+
+}  // namespace PRISM

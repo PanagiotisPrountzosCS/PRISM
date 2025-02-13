@@ -16,6 +16,7 @@ public:
 
     bool operator==(const ObjectId& other) const;
     bool operator!=(const ObjectId& other) const;
+    bool operator<(const ObjectId& other) const;
 
 private:
     uint64_t _id;

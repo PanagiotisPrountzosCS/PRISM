@@ -15,7 +15,7 @@ namespace PRISM {
 
 bool shouldRun{true};
 
-void handleSignal(int signal) {
+void sigintHandler(int signal) {
     if (signal == SIGINT) {
         std::cout << "\nCaught SIGINT (Ctrl + C). Exiting gracefully...\n";
         shouldRun = false;
@@ -24,7 +24,7 @@ void handleSignal(int signal) {
 
 std::shared_ptr<SensorMap> initApp(const char* configPath) {
     // Set up the signal handler
-    std::signal(SIGINT, handleSignal);
+    std::signal(SIGINT, sigintHandler);
 
     // parse config. Will throw exception if config cannot be parsed
     PRISM::JSONParser::Value config = parseConfig(std::string(configPath));
@@ -47,9 +47,7 @@ void cleanup(std::shared_ptr<SensorMap> sensors) {
 
 void pollingCallback(std::shared_ptr<SensorMap> sensors) {
     for (auto& [id, sensor] : *sensors) {
-        std::cout << "============ Polling " << sensor.getName() << " ============\n";
-        sensor.poll();
-        std::cout << "======= Done polling " << sensor.getName() << " =============\n\n";
+        sensor.pollAndUpdate();
 
         if (sensor.size() >= maxMeasurements) {
             sensor.saveMeasurements();
@@ -69,7 +67,7 @@ void mainLoop(std::shared_ptr<SensorMap> sensors) {
             std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime);
 
         if (elapsed > pollInterval_ms) {
-            pollingCallback(sensors);  // poll
+            pollingCallback(sensors);  // pollAndUpdate
             startTime = currentTime;   // reset the timer
         }
         std::this_thread::sleep_for(threadSleepTime_ms);

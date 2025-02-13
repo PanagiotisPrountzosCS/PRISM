@@ -8,7 +8,7 @@ namespace PRISM {
 
 using SensorMap = std::unordered_map<PRISM::ObjectId, PRISM::Sensor, PRISM::ObjectIdHash>;
 
-void handleSignal(int signal);
+void sigintHandler(int signal);
 
 std::shared_ptr<SensorMap> initApp(const char* configPath);
 

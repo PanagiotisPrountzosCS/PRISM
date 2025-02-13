@@ -61,7 +61,7 @@ PRISM::RealValue Sensor::getLastValue() const { return _lastValue; }
 
 PRISM::Time Sensor::getLastTimestamp() const { return _lastTimestamp; }
 
-Measurement Sensor::createMeasurement(RealValue value, Time timestamp_us) {
+Measurement Sensor::createMeasurement(RealValue timestamp_us, RealValue value) {
     Measurement m;
     m.timestamp_us = timestamp_us;
     m.value = value;
@@ -84,7 +84,7 @@ Measurement Sensor::getMeasurementByIndex(size_t index) const {
     return _measurements[index];
 }
 
-Time Sensor::getXByIndex(size_t index) const {
+RealValue Sensor::getXByIndex(size_t index) const {
     if (index >= _measurements.size()) {
         std::cerr << "Index out of range\n";
         exit(1);
@@ -114,7 +114,7 @@ void Sensor::saveMeasurements() {
         std::tm* tm_now = std::localtime(&time_t_now);
 
         // Create a unique filename using the current time
-        filename = "prism_log_" +
+        filename = "logs/prism_log_" +
                    std::to_string(time_t_now)  // Use timestamp as a unique identifier
                    + ".txt";
         filenameGenerated = true;
@@ -139,7 +139,7 @@ void Sensor::clear() { _measurements.clear(); }
 
 void Sensor::freeHeap() { _measurements.shrink_to_fit(); }
 
-void Sensor::poll() {
+void Sensor::pollAndUpdate() {
     if (_dataMonitor->poll()) {
         while (_dataMonitor->size() > 0) {
             auto nextPoint = _dataMonitor->getNextMeasurement();

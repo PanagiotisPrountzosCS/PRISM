@@ -12,13 +12,17 @@ extern bool shouldRun;
 
 using SensorMap = std::unordered_map<PRISM::ObjectId, PRISM::Sensor, PRISM::ObjectIdHash>;
 
-constexpr auto pollInterval_ms = std::chrono::milliseconds(100);
+constexpr auto pollInterval_ms = std::chrono::milliseconds(50);
 
-constexpr auto threadSleepTime_ms = std::chrono::milliseconds(90);
+constexpr auto threadSleepTime_ms = std::chrono::milliseconds(5);
 
-constexpr size_t maxMeasurements = 10;
+extern double appStartTime_ms;
 
-PRISM::JSONParser::Value parseConfig(const std::string& config);
+constexpr size_t maxMeasurements = 1000;
+
+constexpr int chartRangePadding = 5;
+
+JSONParser::Value parseConfig(const std::string& config);
 
 void validateConfig(const PRISM::JSONParser::Value& config);
 

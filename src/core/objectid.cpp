@@ -24,6 +24,8 @@ bool ObjectId::operator==(const ObjectId& other) const { return _id == other._id
 
 bool ObjectId::operator!=(const ObjectId& other) const { return _id != other._id; }
 
+bool ObjectId::operator<(const ObjectId& other) const {return _id < other._id;}
+
 size_t ObjectIdHash::operator()(const ObjectId& id) const {
     return std::hash<uint64_t>()(id.getValue());
 }
