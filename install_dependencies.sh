@@ -13,14 +13,18 @@ if (($EUID != 0)); then
 	exit 1 
 fi
 
-echo "Updating package lists..." apt update
+echo "Updating package lists..." 
+apt update
 
 #Install build essentials
-echo "Installing build tools..." apt install -y build-essential cmake
+echo "Installing build tools..." 
+apt install -y build-essential cmake
 
-echo "Installing Qt6..." apt install -y qt6-base-dev libqt6charts6-dev
+echo "Installing Qt6..." 
+apt install -y qt6-base-dev libqt6charts6-dev
 
 #Install Google Test
-echo "Installing Google Test..." apt install -y libgtest-dev
+echo "Installing Google Test..." 
+apt install -y libgtest-dev
 
 echo "All dependencies installed successfully!"

@@ -70,7 +70,7 @@ target_link_libraries(prism_cli PRIVATE prism_core)
 # Tests Application (Optional)
 # =================================================================
 
-option(BUILD_TESTS "Build the tests" OFF)
+option(BUILD_TESTS "Build the tests" ON)
 if(BUILD_TESTS)
 	find_package(GTest QUIET)
 	if(GTest_FOUND)
