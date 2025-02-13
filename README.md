@@ -4,7 +4,7 @@ This software is part of my Thesis at School of Electrical and Computer Engineer
 
 # Installation
 This project has been tested only on debian 12 so far, but the code does not use any OS specific libraries, so it should be easy to port to windows or other operating systems.
- Step 1 : Clone repo
+- Step 1 : Clone repo
 ```
 git clone git@github.com:PanagiotisPrountzosCS/PRISM.git
 cd PRISM
