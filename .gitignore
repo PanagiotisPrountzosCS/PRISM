@@ -2,5 +2,4 @@ build
 .vscode
 todo
 massif.*
-config.json
 logs/prism_log*

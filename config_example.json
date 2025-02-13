@@ -1,0 +1,29 @@
+[
+    {
+        "name": "x",
+        "type": "pressure",
+        "dataMonitor": "random",
+        "upperLimit": 1000,
+        "lowerLimit": 10,
+        "unit": "bar",
+        "isActive": true
+    },
+    {
+        "name": "y",
+        "type": "pressure",
+        "dataMonitor": "random",
+        "upperLimit": 1000,
+        "lowerLimit": 10,
+        "unit": "bar",
+        "isActive": true
+    },
+    {
+        "name": "z",
+        "type": "pressure",
+        "dataMonitor": "random",
+        "upperLimit": 1000,
+        "lowerLimit": 10,
+        "unit": "bar",
+        "isActive": true
+    }
+]
