@@ -31,7 +31,7 @@ std::map<PRISM::SensorType, std::string> sensorTypeToString = {
     {PRISM::SensorType::TEMPERATURE, "temperature"}};
 
 Sensor::Sensor(std::string name, SensorType type, DataMonitorType dataMonitorType,
-               RealValue upperLimit, RealValue lowerLimit, std::string unit)
+               RealValue lowerLimit, RealValue upperLimit, std::string unit)
     : _id(),
       _name(std::move(name)),
       _type(type),

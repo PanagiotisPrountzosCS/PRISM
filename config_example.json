@@ -3,7 +3,7 @@
         "name": "x",
         "type": "pressure",
         "dataMonitor": "random",
-        "upperLimit": 1000,
+        "upperLimit": 20,
         "lowerLimit": 10,
         "unit": "bar",
         "isActive": true
@@ -12,8 +12,8 @@
         "name": "y",
         "type": "pressure",
         "dataMonitor": "random",
-        "upperLimit": 1000,
-        "lowerLimit": 10,
+        "upperLimit": 10,
+        "lowerLimit": -5,
         "unit": "bar",
         "isActive": true
     },
@@ -21,8 +21,8 @@
         "name": "z",
         "type": "pressure",
         "dataMonitor": "random",
-        "upperLimit": 1000,
-        "lowerLimit": 10,
+        "upperLimit": 100,
+        "lowerLimit": 60,
         "unit": "bar",
         "isActive": true
     }

@@ -131,7 +131,7 @@ std::shared_ptr<SensorMap> createSensors(const PRISM::JSONParser::Value& config)
                 auto dataMonitorEnum = PRISM::stringToDataMonitorType[dataMonitor];
                 auto typeEnum = PRISM::stringToSensorType[type];
 
-                PRISM::Sensor newSensor(name, typeEnum, dataMonitorEnum, upperLimit, lowerLimit,
+                PRISM::Sensor newSensor(name, typeEnum, dataMonitorEnum, lowerLimit, upperLimit,
                                         unit);
 
                 sensors->emplace(newSensor.getId(), newSensor);

@@ -62,7 +62,7 @@ void MainWindow::updateChartView(ObjectId id) {
     auto sensor = _sensors->at(id);
     newChart->setTitle(QString::fromStdString(sensor.getName()));
 
-    QLineSeries* newDataSeries = new QLineSeries();
+    QLineSeries* newDataSeries = new QLineSeries(this);
 
     double x, y;
     for (int i = 0; i < sensor.size(); i++) {
@@ -107,7 +107,7 @@ void MainWindow::initApp(const char* configPath) {
 
 void MainWindow::initGui() {
     if (_sensors->size() == 0) {
-        _hBoxLayout->addWidget(new QLabel("No sensors defined as active in config!"));
+        _hBoxLayout->addWidget(new QLabel("No sensors defined as active in config!", this));
         _hBoxLayout->setAlignment(Qt::AlignCenter);
     } else {
         _listWidget = std::make_shared<QListWidget>(this);
@@ -123,7 +123,7 @@ void MainWindow::initGui() {
             _listWidget->addItem(item);
         }
         _hBoxLayout->addWidget(_listWidget.get());
-        _chartView = new QChartView();
+        _chartView = new QChartView(this);
         _hBoxLayout->addWidget(_chartView);
     }
     _centralWidget->setLayout(_hBoxLayout.get());
