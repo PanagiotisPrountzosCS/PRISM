@@ -31,8 +31,11 @@ set(IMGUI_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/imgui)
 set(IMPLOT_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/implot)
 set(CXXOPTS_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/cxxopts)
 
-set(CORE_SRC addFilesHereLater)
-set(GUI_SRC addMoreFilesHereLater)
+set(CORE_SRC 
+    ${SRC_DIR}/options_parser.cpp
+    ${SRC_DIR}/extras.cpp
+)
+#set(GUI_SRC addMoreFilesHereLater)
 
 file(GLOB IMGUI_CORE_SRC
     ${IMGUI_ROOT_DIR}/imgui.cpp
@@ -93,7 +96,8 @@ target_include_directories(implot PUBLIC
 
 #====================BUILD TARGETS====================
 
-add_executable(prism_cli main.cpp)
+add_executable(prism_cli main.cpp ${CORE_SRC})
+target_include_directories(prism_cli PRIVATE ${INCLUDE_DIR})
 target_link_libraries(prism_cli PRIVATE cxxopts)
 target_compile_definitions(prism_cli PUBLIC 
     __APP_MODE=1
@@ -101,7 +105,8 @@ target_compile_definitions(prism_cli PUBLIC
 )
 
 if(BUILD_GUI)
-    add_executable(prism_gui main.cpp)
+    add_executable(prism_gui main.cpp ${CORE_SRC})
+    target_include_directories(prism_gui PRIVATE ${INCLUDE_DIR})
     target_link_libraries(prism_gui PRIVATE imgui implot cxxopts)
     target_compile_definitions(prism_gui PUBLIC 
         __APP_MODE=2
