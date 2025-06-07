@@ -34,6 +34,7 @@ set(CXXOPTS_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/cxxopts)
 set(CORE_SRC 
     ${SRC_DIR}/options_parser.cpp
     ${SRC_DIR}/extras.cpp
+    ${SRC_DIR}/mqtt_client.cpp
 )
 #set(GUI_SRC addMoreFilesHereLater)
 
@@ -59,6 +60,7 @@ file(GLOB IMPLOT_SRC
 #sdl2 / opengl
 find_package(SDL2)
 find_package(OpenGL)
+
 if(SDL2_FOUND AND OpenGL_FOUND)
     set(BUILD_GUI TRUE)
 else()
@@ -98,7 +100,7 @@ target_include_directories(implot PUBLIC
 
 add_executable(prism_cli main.cpp ${CORE_SRC})
 target_include_directories(prism_cli PRIVATE ${INCLUDE_DIR})
-target_link_libraries(prism_cli PRIVATE cxxopts)
+target_link_libraries(prism_cli PRIVATE cxxopts mosquitto)
 target_compile_definitions(prism_cli PUBLIC 
     __APP_MODE=1
     #__APP_MODE=1 means cli build
@@ -107,7 +109,7 @@ target_compile_definitions(prism_cli PUBLIC
 if(BUILD_GUI)
     add_executable(prism_gui main.cpp ${CORE_SRC})
     target_include_directories(prism_gui PRIVATE ${INCLUDE_DIR})
-    target_link_libraries(prism_gui PRIVATE imgui implot cxxopts)
+    target_link_libraries(prism_gui PRIVATE imgui implot cxxopts mosquitto)
     target_compile_definitions(prism_gui PUBLIC 
         __APP_MODE=2
         #__APP_MODE=2 means gui build

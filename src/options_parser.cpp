@@ -2,6 +2,11 @@
 
 #include <iostream>
 
+#include "cxxopts.hpp"
+
+namespace PRISM
+{
+
 bool validate_opts(int argc, char** argv, options& options)
 {
         cxxopts::Options opts("prism_cli / prism_gui",
@@ -13,7 +18,8 @@ bool validate_opts(int argc, char** argv, options& options)
             "t,topic", "topic to subscribe to", cxxopts::value<std::string>())(
             "u,username", "mqtt username", cxxopts::value<std::string>())(
             "P,password", "mqtt password", cxxopts::value<std::string>())(
-            "p,port", "mqtt broker port", cxxopts::value<uint32_t>());
+            "p,port", "mqtt broker port", cxxopts::value<uint32_t>())(
+            "c, cert", "root certificate", cxxopts::value<std::string>());
 
         cxxopts::ParseResult result;
         try
@@ -41,5 +47,12 @@ bool validate_opts(int argc, char** argv, options& options)
         options.password = result["password"].as<std::string>();
         options.port = result["port"].as<uint32_t>();
 
+        if (result.count("cert"))
+                options.cert_path = result["cert"].as<std::string>();
+        else
+                options.cert_path = "";
+
         return true;
 }
+
+}  // namespace PRISM

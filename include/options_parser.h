@@ -3,19 +3,12 @@
 
 #include <stdint.h>
 
-#include <string>
+#include "coredefs.h"
 
-#include "cxxopts.hpp"
-
-typedef struct options
+namespace PRISM
 {
-        std::string host;
-        std::string topic;
-        std::string username;
-        std::string password;
-        uint32_t port;
-} options;
 
 bool validate_opts(int argc, char** argv, options& options);
 
+}  // namespace PRISM
 #endif
