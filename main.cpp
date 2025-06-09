@@ -1,17 +1,16 @@
 #ifndef __APP_MODE
-#define __APP_MODE 1
+#define __APP_MODE 1  // cli
 #endif
 #ifndef __BUILD_MODE
-#define __BUILD_MODE 1
+#define __BUILD_MODE 1  // debug
 #endif
 
 #include <iostream>
 
+#include "app.h"
 #include "extras.h"
-#include "mosquitto.h"
 #include "mqtt_client.h"
 #include "options_parser.h"
-#include "unistd.h"
 
 int main(int argc, char** argv)
 {
@@ -32,16 +31,7 @@ int main(int argc, char** argv)
                 exit(EXIT_FAILURE);
         }
 
-        // start_loop(mosquitto_client, message_q);
-        mosquitto_loop_start(mosquitto_client);
-
-        while (1)
-        {
-                std::cout << message_q.queue->size() << '\n';
-                sleep(1);
-        }
-
-        mosquitto_loop_stop(mosquitto_client, true);
+        start_loop(mosquitto_client, message_q);
 
         PRISM::cleanup_queue(&message_q);
         PRISM::cleanup_mqtt(mosquitto_client);

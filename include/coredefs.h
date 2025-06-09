@@ -5,8 +5,6 @@
 
 #include <string>
 
-#define TICK_MS 25
-
 namespace PRISM
 {
 
@@ -20,6 +18,7 @@ typedef struct options
         uint32_t port;
 } options;
 
+#pragma pack(push, 1)
 typedef struct message
 {
         float x;
@@ -28,6 +27,7 @@ typedef struct message
         uint32_t id;
         uint32_t timestamp;
 } message;
+#pragma pack(pop)
 
 }  // namespace PRISM
 

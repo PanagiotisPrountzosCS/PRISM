@@ -1,5 +1,7 @@
 #include "mqtt_client.h"
 
+#include <string.h>
+
 #include <iostream>
 
 #include "coredefs.h"
@@ -11,6 +13,7 @@ namespace
 void queue_inserter_callback(mosquitto* mosq, void* userdata,
                              const mosquitto_message* msg)
 {
+        (void)mosq;  // quit bitching compiler
         auto qc = static_cast<PRISM::queue_context*>(userdata);
         if (!qc || !qc->mutex || !qc->queue)
         {
@@ -24,12 +27,14 @@ void queue_inserter_callback(mosquitto* mosq, void* userdata,
                 std::cout << "bad message size, skipping\n";
                 return;
         }
-        PRISM::message* m = (PRISM::message*)msg->payload;
+        PRISM::message msg_array[message_count];
+        memcpy(msg_array, msg->payload, msg->payloadlen);
+
         std::lock_guard<std::mutex> lock(*(qc->mutex));
 
         for (size_t i = 0; i < message_count; i++)
         {
-                qc->queue->push(m[i]);
+                qc->queue->push(msg_array[i]);
         }
         // destroying the lock frees the mutex :p
         // I believe this should be everything

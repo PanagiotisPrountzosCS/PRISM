@@ -35,8 +35,8 @@ set(CORE_SRC
     ${SRC_DIR}/options_parser.cpp
     ${SRC_DIR}/extras.cpp
     ${SRC_DIR}/mqtt_client.cpp
+    ${SRC_DIR}/app.cpp
 )
-#set(GUI_SRC addMoreFilesHereLater)
 
 file(GLOB IMGUI_CORE_SRC
     ${IMGUI_ROOT_DIR}/imgui.cpp
