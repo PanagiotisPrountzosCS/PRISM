@@ -11,7 +11,6 @@ namespace
 void queue_inserter_callback(mosquitto* mosq, void* userdata,
                              const mosquitto_message* msg)
 {
-        std::cout << msg->payloadlen << '\n';
         auto qc = static_cast<PRISM::queue_context*>(userdata);
         if (!qc || !qc->mutex || !qc->queue)
         {
@@ -32,6 +31,8 @@ void queue_inserter_callback(mosquitto* mosq, void* userdata,
         {
                 qc->queue->push(m[i]);
         }
+        // destroying the lock frees the mutex :p
+        // I believe this should be everything
 }
 
 }  // namespace

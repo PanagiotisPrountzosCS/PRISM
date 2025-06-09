@@ -32,6 +32,7 @@ int main(int argc, char** argv)
                 exit(EXIT_FAILURE);
         }
 
+        // start_loop(mosquitto_client, message_q);
         mosquitto_loop_start(mosquitto_client);
 
         while (1)
