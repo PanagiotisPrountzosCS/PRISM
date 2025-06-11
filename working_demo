@@ -1,0 +1,153 @@
+cmake_minimum_required(VERSION 3.10)
+project(liveplot_demo)
+
+set(CMAKE_CXX_STANDARD 17)
+
+# Find SDL2
+find_package(SDL2 REQUIRED)
+include_directories(${SDL2_INCLUDE_DIRS})
+
+# ImGui sources (core + SDL2/OpenGL3 backends)
+add_library(imgui STATIC
+    imgui/imgui.cpp
+    imgui/imgui_draw.cpp
+    imgui/imgui_tables.cpp
+    imgui/imgui_widgets.cpp
+    imgui/imgui_demo.cpp
+    imgui/backends/imgui_impl_sdl2.cpp
+    imgui/backends/imgui_impl_opengl3.cpp
+)
+target_include_directories(imgui PUBLIC ./imgui ./imgui/backends)
+
+# ImPlot sources
+add_library(implot STATIC
+    implot/implot.cpp
+    implot/implot_items.cpp
+    implot/implot_demo.cpp
+)
+target_include_directories(implot PUBLIC ./implot ./imgui)
+
+# Main executable
+add_executable(liveplot_demo main.cpp)
+target_link_libraries(liveplot_demo
+    imgui
+    implot
+    ${SDL2_LIBRARIES}
+    GL
+)
+target_include_directories(liveplot_demo PUBLIC ./imgui)
+target_include_directories(liveplot_demo PUBLIC ./implot)
+
+
+
+==============================================
+
+
+
+#include "imgui.h"
+#include "imgui_impl_opengl3.h"
+#include "imgui_impl_sdl2.h"
+#include "implot.h"
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
+#include <cmath>
+#include <vector>
+
+int main(int, char **) {
+  SDL_Init(SDL_INIT_VIDEO);
+  SDL_Window *window = SDL_CreateWindow(
+      "Live Sinewave Plot", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800,
+      600, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+  SDL_GLContext gl_context = SDL_GL_CreateContext(window);
+  SDL_GL_MakeCurrent(window, gl_context);
+  SDL_GL_SetSwapInterval(1);
+
+  IMGUI_CHECKVERSION();
+  ImGui::CreateContext();
+  ImPlot::CreateContext();
+  ImGuiIO &io = ImGui::GetIO();
+  (void)io;
+  ImGui::StyleColorsDark();
+
+  ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
+  ImGui_ImplOpenGL3_Init("#version 130");
+
+  bool running = true;
+  SDL_Event event;
+
+  std::vector<float> x_data(1000), y_data(1000);
+  float t = 0.0f;
+
+  while (running) {
+    while (SDL_PollEvent(&event)) {
+      ImGui_ImplSDL2_ProcessEvent(&event);
+      if (event.type == SDL_QUIT)
+        running = false;
+    }
+
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplSDL2_NewFrame();
+    ImGui::NewFrame();
+
+    // Layout: left tab widget, right plot
+    ImGui::SetNextWindowPos(ImVec2(0, 0));
+    ImGui::SetNextWindowSize(io.DisplaySize);
+    ImGui::Begin("MainWindow", nullptr,
+                 ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+                     ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse |
+                     ImGuiWindowFlags_NoSavedSettings |
+                     ImGuiWindowFlags_NoScrollbar);
+
+    // Left tab widget
+    static int selected_amplitude = 0;
+    const char *items[] = {"Amplitude 1", "Amplitude 2", "Amplitude 3",
+                           "Amplitude 4", "Amplitude 5"};
+    ImGui::BeginChild("TabWidget", ImVec2(150, 0), true);
+    ImGui::Text("Select Amplitude:");
+    ImGui::Separator();
+    for (int i = 0; i < 5; ++i) {
+      if (ImGui::Selectable(items[i], selected_amplitude == i)) {
+        selected_amplitude = i;
+      }
+    }
+    ImGui::EndChild();
+
+    ImGui::SameLine();
+
+    // Plot area (fills the rest)
+    ImGui::BeginChild("PlotArea", ImVec2(0, 0), false);
+
+    // Update sinewave data with selected amplitude
+    float amplitude = float(selected_amplitude + 1);
+    t += 0.01f;
+    for (size_t i = 0; i < x_data.size(); ++i) {
+      x_data[i] = i * 0.01f;
+      y_data[i] = amplitude * std::sin(x_data[i] + t);
+    }
+
+    if (ImPlot::BeginPlot("Sinewave", ImVec2(-1, -1))) {
+      ImPlot::PlotLine("sin(x + t)", x_data.data(), y_data.data(),
+                       x_data.size());
+      ImPlot::EndPlot();
+    }
+    ImGui::EndChild();
+
+    ImGui::End();
+
+    ImGui::Render();
+    glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    SDL_GL_SwapWindow(window);
+  }
+
+  ImGui_ImplOpenGL3_Shutdown();
+  ImGui_ImplSDL2_Shutdown();
+  ImPlot::DestroyContext();
+  ImGui::DestroyContext();
+  SDL_GL_DeleteContext(gl_context);
+  SDL_DestroyWindow(window);
+  SDL_Quit();
+  return 0;
+}
