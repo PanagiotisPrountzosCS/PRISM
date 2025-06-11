@@ -140,12 +140,4 @@ void export_and_clear(sensor s, uint32_t id)
         vec->clear();
         s.predictor->clear();
 }
-
-#if __APP_MODE == 1
-void hello() { std::cout << "clearly cli mode\n"; }
-#endif
-
-#if __APP_MODE == 2
-void hello() { std::cout << "clearly gui mode\n"; }
-#endif
 }  // namespace PRISM

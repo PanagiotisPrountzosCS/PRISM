@@ -21,14 +21,6 @@ void poll_message_queue(
 void sleep_ms(uint32_t duration);
 
 void export_and_clear(sensor s, uint32_t id);
-
-#if __APP_MODE == 1
-void hello();
-#endif
-
-#if __APP_MODE == 2
-void hello();
-#endif
 }  // namespace PRISM
 
 #endif
