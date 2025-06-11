@@ -33,7 +33,6 @@ set(CXXOPTS_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/cxxopts)
 
 set(CORE_SRC 
     ${SRC_DIR}/options_parser.cpp
-    ${SRC_DIR}/extras.cpp
     ${SRC_DIR}/mqtt_client.cpp
     ${SRC_DIR}/app.cpp
 )

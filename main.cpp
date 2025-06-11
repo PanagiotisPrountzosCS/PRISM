@@ -8,7 +8,6 @@
 #include <iostream>
 
 #include "app.h"
-#include "extras.h"
 #include "mqtt_client.h"
 #include "options_parser.h"
 

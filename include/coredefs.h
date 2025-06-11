@@ -8,6 +8,21 @@
 namespace PRISM
 {
 
+typedef struct measurement
+{
+        float x;
+        float y;
+        float z;
+        float timestamp;
+} measurement;
+
+template <typename T>
+struct point
+{
+        T x;
+        T y;
+};
+
 typedef struct options
 {
         std::string host;

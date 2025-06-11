@@ -22,7 +22,7 @@ volatile std::sig_atomic_t should_run = 1;
 
 void sigint_handler(int) { should_run = 0; }
 
-const size_t max_vector_size = 10;
+constexpr size_t max_vector_size = 10000;
 
 }  // namespace
 
@@ -41,24 +41,31 @@ void poll_message_queue(
                 // a new sensor;
                 if (!sensor_map.count(m.id))
                 {
-                        sensor new_sensor{m.id, {}};
                         sensor_map.insert(
-                            {m.id, std::make_shared<sensor>(new_sensor)});
+                            {m.id, std::make_shared<sensor>(m.id)});
                 }
-                measurement new_point{m.x, m.y, m.z, m.timestamp};
+                measurement new_point{m.x, m.y, m.z,
+                                      static_cast<float>(m.timestamp)};
 
                 // before pushing back, we should probably clear if the vector
                 // has a size greater than a fixed constant
-                if (sensor_map[m.id]->data.size() > max_vector_size)
-                        export_and_clear(sensor_map[m.id]->data, m.id);
-                std::cout << sensor_map[m.id]->data.size();
+                if (sensor_map[m.id]->data->size() > max_vector_size)
+                        export_and_clear(*sensor_map[m.id], m.id);
 
-                sensor_map[m.id]->data.push_back(new_point);
+                sensor_map[m.id]->data->push_back(new_point);
+                sensor_map[m.id]->predictor->step_window();
 
                 // fuckass logging but I really need to submit this shit + a
                 // thesis in 4 days lol
                 std::cout << "Sensor#" << m.id << " (" << m.x << " " << m.y
-                          << " " << m.z << ") @ " << m.timestamp << "\n";
+                          << " " << m.z << ") @ " << m.timestamp * 1.0 / 1000
+                          << " x_a = " << sensor_map[m.id]->predictor->get_x_a()
+                          << " y_a = " << sensor_map[m.id]->predictor->get_y_a()
+                          << " z_a = " << sensor_map[m.id]->predictor->get_z_a()
+                          << " x_b = " << sensor_map[m.id]->predictor->get_x_b()
+                          << " y_b = " << sensor_map[m.id]->predictor->get_y_b()
+                          << " z_b = " << sensor_map[m.id]->predictor->get_z_b()
+                          << '\n';
                 qc.queue->pop();
         }
 }
@@ -95,17 +102,18 @@ void start_loop(mosquitto* mosq, queue_context& qc)
         std::cout << "\nExiting...\n";
         for (auto& [id, sensor_ptr] : sensor_map)
         {
-                if (!sensor_ptr->data.empty())
+                if (!sensor_ptr->data->empty())
                 {
-                        export_and_clear(sensor_ptr->data, id);
+                        export_and_clear(*sensor_ptr, id);
                 }
         }
 
         mosquitto_loop_stop(mosq, true);
 }
 
-void export_and_clear(std::vector<measurement>& vec, uint32_t id)
+void export_and_clear(sensor s, uint32_t id)
 {
+        auto vec = s.data;
         static std::string log_filename;
         if (log_filename.empty())
         {
@@ -123,13 +131,14 @@ void export_and_clear(std::vector<measurement>& vec, uint32_t id)
                 return;
         }
 
-        for (const auto& m : vec)
+        for (const auto& m : *vec)
         {
                 ofs << id << " " << m.x << " " << m.y << " " << m.z << " "
                     << m.timestamp << "\n";
         }
         ofs.close();
-        vec.clear();
+        vec->clear();
+        s.predictor->clear();
 }
 
 #if __APP_MODE == 1
