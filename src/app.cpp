@@ -56,8 +56,8 @@ void poll_message_queue(
                         sensor_map.insert(
                             {m.id, std::make_shared<sensor>(m.id)});
                 }
-                measurement new_point{m.x, m.y, m.z,
-                                      static_cast<float>(m.timestamp)};
+                measurement new_point{
+                    m.x, m.y, m.z, static_cast<float>(m.timestamp) / 1000.0f};
 
                 // before pushing back, we should probably clear if the vector
                 // has a size greater than a fixed constant
@@ -70,7 +70,7 @@ void poll_message_queue(
                 // fuckass logging but I really need to submit this shit + a
                 // thesis in 4 days lol
                 std::cout << "Sensor#" << m.id << " (" << m.x << " " << m.y
-                          << " " << m.z << ") @ " << m.timestamp * 1.0 / 1000
+                          << " " << m.z << ") @ " << m.timestamp
                           << " x_a = " << sensor_map[m.id]->predictor->get_x_a()
                           << " y_a = " << sensor_map[m.id]->predictor->get_y_a()
                           << " z_a = " << sensor_map[m.id]->predictor->get_z_a()
@@ -211,7 +211,7 @@ void generate_next_frame(
         static uint32_t selected_id = -1;
         static char selected_orientation =
             'a';  // default value, used for debugging
-        std::vector<std::string> widget_options = {"0x", "42y"};
+        std::vector<std::string> widget_options = {};
         for (const auto& pair : sensor_map)
         {
                 auto x = std::to_string(pair.first) + 'x';
@@ -241,19 +241,42 @@ void generate_next_frame(
 
         ImGui::BeginChild("PlotArea", ImVec2(0, 0), false);
 
-        std::vector<float> x = {0};
-        std::vector<float> y = {0};
-        std::shared_ptr<std::vector<measurement>> data;
-
         if (selected_id != -1 && selected_orientation != 'a')
         {
-                // data = sensor_map[selected_id]->data;
-        }
-
-        if (ImPlot::BeginPlot("PRISM", ImVec2(-1, -1)))
-        {
-                ImPlot::PlotLine("sin(x + t)", x.data(), y.data(), x.size());
-                ImPlot::EndPlot();
+                auto data = sensor_map[selected_id]->data;
+                auto x = std::vector<float>();
+                auto y = std::vector<float>();
+                // again, bad approach
+                if (selected_orientation == 'x')
+                {
+                        for (const auto& m : *data)
+                        {
+                                x.push_back(m.timestamp);
+                                y.push_back(m.x);
+                        }
+                }
+                else if (selected_orientation == 'y')
+                {
+                        for (const auto& m : *data)
+                        {
+                                x.push_back(m.timestamp);
+                                y.push_back(m.y);
+                        }
+                }
+                else if (selected_orientation == 'z')
+                {
+                        for (const auto& m : *data)
+                        {
+                                x.push_back(m.timestamp);
+                                y.push_back(m.z);
+                        }
+                }
+                if (ImPlot::BeginPlot("PRISM", ImVec2(-1, -1)))
+                {
+                        ImPlot::PlotLine(selected_signal.c_str(), x.data(),
+                                         y.data(), x.size());
+                        ImPlot::EndPlot();
+                }
         }
 
         ImGui::EndChild();
