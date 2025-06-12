@@ -28,8 +28,8 @@ typedef struct linear_regression_calc
                 std::vector<float> predictions;
                 for (size_t i = 1; i <= n; i++)
                 {
-                        predictions.push_back(get_x_a() * (window_stop + i) +
-                                              get_x_b());
+                        predictions.push_back(get_x_b() * (window_stop + i) +
+                                              get_x_a());
                 }
                 return predictions;
         }
@@ -38,8 +38,8 @@ typedef struct linear_regression_calc
                 std::vector<float> predictions;
                 for (size_t i = 1; i <= n; i++)
                 {
-                        predictions.push_back(get_y_a() * (window_stop + i) +
-                                              get_y_b());
+                        predictions.push_back(get_y_b() * (window_stop + i) +
+                                              get_y_a());
                 }
                 return predictions;
         }
@@ -48,8 +48,8 @@ typedef struct linear_regression_calc
                 std::vector<float> predictions;
                 for (size_t i = 1; i <= n; i++)
                 {
-                        predictions.push_back(get_z_a() * (window_stop + i) +
-                                              get_z_b());
+                        predictions.push_back(get_z_b() * (window_stop + i) +
+                                              get_z_a());
                 }
                 return predictions;
         }

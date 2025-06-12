@@ -73,15 +73,13 @@ void poll_message_queue(
                 // thesis in 4 days lol
                 std::cout << "Sensor#" << m.id << " (" << new_point.x << " "
                           << new_point.y << " " << new_point.z << ") @ "
-                          << new_point.timestamp << " "
-                          << sensor_map[m.id]->predictor->get_x_a() << " "
-                          << sensor_map[m.id]->predictor->get_x_b() << '\n';
+                          << new_point.timestamp;
 
-                // for (const auto& p : predictions)
-                // {
-                //         std::cout << " " << p;
-                // }
-                // std::cout << '\n';
+                for (const auto& p : predictions)
+                {
+                        std::cout << " " << p;
+                }
+                std::cout << '\n';
 
                 qc.queue->pop();
         }
@@ -166,10 +164,9 @@ void export_and_clear(sensor s, uint32_t id)
 void init_sdl(gui_context& gc)
 {
         SDL_Init(SDL_INIT_VIDEO);
-        gc.window =
-            SDL_CreateWindow("Live Sinewave Plot", SDL_WINDOWPOS_CENTERED,
-                             SDL_WINDOWPOS_CENTERED, 800, 600,
-                             SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+        gc.window = SDL_CreateWindow("PRISM", SDL_WINDOWPOS_CENTERED,
+                                     SDL_WINDOWPOS_CENTERED, 800, 600,
+                                     SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
         gc.gl_context = SDL_GL_CreateContext(gc.window);
         SDL_GL_MakeCurrent(gc.window, gc.gl_context);
         SDL_GL_SetSwapInterval(1);
