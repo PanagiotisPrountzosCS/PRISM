@@ -23,6 +23,37 @@ typedef struct linear_regression_calc
         {
         }
 
+        std::vector<float> predict_n_x(size_t n)
+        {
+                std::vector<float> predictions;
+                for (size_t i = 1; i <= n; i++)
+                {
+                        predictions.push_back(get_x_a() * (window_stop + i) +
+                                              get_x_b());
+                }
+                return predictions;
+        }
+        std::vector<float> predict_n_y(size_t n)
+        {
+                std::vector<float> predictions;
+                for (size_t i = 1; i <= n; i++)
+                {
+                        predictions.push_back(get_y_a() * (window_stop + i) +
+                                              get_y_b());
+                }
+                return predictions;
+        }
+        std::vector<float> predict_n_z(size_t n)
+        {
+                std::vector<float> predictions;
+                for (size_t i = 1; i <= n; i++)
+                {
+                        predictions.push_back(get_z_a() * (window_stop + i) +
+                                              get_z_b());
+                }
+                return predictions;
+        }
+
         float get_x_a()
         {
                 float d = window_size * sum_tt - sum_t * sum_t;

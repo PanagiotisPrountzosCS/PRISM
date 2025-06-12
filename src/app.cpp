@@ -67,17 +67,22 @@ void poll_message_queue(
                 sensor_map[m.id]->data->push_back(new_point);
                 sensor_map[m.id]->predictor->step_window();
 
+                auto predictions = sensor_map[m.id]->predictor->predict_n_x(2);
+
                 // fuckass logging but I really need to submit this shit + a
                 // thesis in 4 days lol
-                std::cout << "Sensor#" << m.id << " (" << m.x << " " << m.y
-                          << " " << m.z << ") @ " << m.timestamp
-                          << " x_a = " << sensor_map[m.id]->predictor->get_x_a()
-                          << " y_a = " << sensor_map[m.id]->predictor->get_y_a()
-                          << " z_a = " << sensor_map[m.id]->predictor->get_z_a()
-                          << " x_b = " << sensor_map[m.id]->predictor->get_x_b()
-                          << " y_b = " << sensor_map[m.id]->predictor->get_y_b()
-                          << " z_b = " << sensor_map[m.id]->predictor->get_z_b()
-                          << '\n';
+                std::cout << "Sensor#" << m.id << " (" << new_point.x << " "
+                          << new_point.y << " " << new_point.z << ") @ "
+                          << new_point.timestamp << " "
+                          << sensor_map[m.id]->predictor->get_x_a() << " "
+                          << sensor_map[m.id]->predictor->get_x_b() << '\n';
+
+                // for (const auto& p : predictions)
+                // {
+                //         std::cout << " " << p;
+                // }
+                // std::cout << '\n';
+
                 qc.queue->pop();
         }
 }
