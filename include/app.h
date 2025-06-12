@@ -7,6 +7,11 @@
 #include "sensor.h"
 
 struct mosquitto;
+#if __APP_MODE == 2
+
+struct SDL_Window;
+
+#endif
 
 namespace PRISM
 {
@@ -22,12 +27,24 @@ void sleep_ms(uint32_t duration);
 
 void export_and_clear(sensor s, uint32_t id);
 
-#if __APP_MODE == 1
-void hello();
-#endif
-
 #if __APP_MODE == 2
-void hello();
+
+typedef struct gui_context
+{
+        SDL_Window* window;
+        void* gl_context;
+} gui_context;
+
+void init_sdl(gui_context& gc);
+
+void poll_sdl_events(volatile bool& should_run);
+
+void generate_next_frame(
+    gui_context& gc,
+    std::unordered_map<uint32_t, std::shared_ptr<sensor>>& sensor_map);
+
+void clear_sdl(gui_context& gc);
+
 #endif
 }  // namespace PRISM
 

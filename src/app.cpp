@@ -13,12 +13,24 @@
 #include "mosquitto.h"
 #include "mqtt_client.h"
 
-#define TICK_MS 50
+#if __APP_MODE == 2
+// gui includes
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
+
+#include "imgui.h"
+#include "imgui_impl_opengl3.h"
+#include "imgui_impl_sdl2.h"
+#include "implot.h"
+
+#endif
+
+#define TICK_MS 10
 
 namespace
 {
 
-volatile std::sig_atomic_t should_run = 1;
+volatile bool should_run = 1;
 
 void sigint_handler(int) { should_run = 0; }
 
@@ -44,8 +56,8 @@ void poll_message_queue(
                         sensor_map.insert(
                             {m.id, std::make_shared<sensor>(m.id)});
                 }
-                measurement new_point{m.x, m.y, m.z,
-                                      static_cast<float>(m.timestamp)};
+                measurement new_point{
+                    m.x, m.y, m.z, static_cast<float>(m.timestamp) / 1000.0f};
 
                 // before pushing back, we should probably clear if the vector
                 // has a size greater than a fixed constant
@@ -58,7 +70,7 @@ void poll_message_queue(
                 // fuckass logging but I really need to submit this shit + a
                 // thesis in 4 days lol
                 std::cout << "Sensor#" << m.id << " (" << m.x << " " << m.y
-                          << " " << m.z << ") @ " << m.timestamp * 1.0 / 1000
+                          << " " << m.z << ") @ " << m.timestamp
                           << " x_a = " << sensor_map[m.id]->predictor->get_x_a()
                           << " y_a = " << sensor_map[m.id]->predictor->get_y_a()
                           << " z_a = " << sensor_map[m.id]->predictor->get_z_a()
@@ -78,26 +90,29 @@ void sleep_ms(uint32_t duration)
 void start_loop(mosquitto* mosq, queue_context& qc)
 {
         std::signal(SIGINT, sigint_handler);
-        // #if __APP_MODE == 2
-        // init_gui();
-        // #endif
 
         std::unordered_map<uint32_t, std::shared_ptr<sensor>> sensor_map;
         mosquitto_loop_start(mosq);
+#if __APP_MODE == 2
+        gui_context gc;
+        PRISM::init_sdl(gc);
+#endif
 
         while (should_run)
         {
-                // #if __APP_MODE == 2
-                // poll_sdl_events();
-                // #endif
-
                 poll_message_queue(qc, sensor_map);
-                sleep_ms(TICK_MS);
 
-                // #if __APP_MODE == 2
-                // render_frame();
-                // #endif
+#if __APP_MODE == 2
+                poll_sdl_events(should_run);
+                generate_next_frame(gc, sensor_map);
+#endif
+
+                sleep_ms(TICK_MS);
         }
+
+#if __APP_MODE == 2
+        clear_sdl(gc);
+#endif
 
         std::cout << "\nExiting...\n";
         for (auto& [id, sensor_ptr] : sensor_map)
@@ -126,7 +141,7 @@ void export_and_clear(sensor s, uint32_t id)
         std::ofstream ofs(log_filename, std::ios::app);
         if (!ofs)
         {
-                std::cerr << "Failed to open log file: " << log_filename
+                std::cout << "Failed to open log file: " << log_filename
                           << "\n";
                 return;
         }
@@ -141,11 +156,152 @@ void export_and_clear(sensor s, uint32_t id)
         s.predictor->clear();
 }
 
-#if __APP_MODE == 1
-void hello() { std::cout << "clearly cli mode\n"; }
+#if __APP_MODE == 2
+
+void init_sdl(gui_context& gc)
+{
+        SDL_Init(SDL_INIT_VIDEO);
+        gc.window =
+            SDL_CreateWindow("Live Sinewave Plot", SDL_WINDOWPOS_CENTERED,
+                             SDL_WINDOWPOS_CENTERED, 800, 600,
+                             SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+        gc.gl_context = SDL_GL_CreateContext(gc.window);
+        SDL_GL_MakeCurrent(gc.window, gc.gl_context);
+        SDL_GL_SetSwapInterval(1);
+
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImPlot::CreateContext();
+        ImGuiIO& io = ImGui::GetIO();
+        (void)io;
+        ImGui::StyleColorsDark();
+
+        ImGui_ImplSDL2_InitForOpenGL(gc.window, gc.gl_context);
+        ImGui_ImplOpenGL3_Init("#version 130");
+}
+
+void poll_sdl_events(volatile bool& should_run)
+{
+        SDL_Event event;
+        while (SDL_PollEvent(&event))
+        {
+                ImGui_ImplSDL2_ProcessEvent(&event);
+                if (event.type == SDL_QUIT) should_run = false;
+        }
+}
+
+void generate_next_frame(
+    gui_context& gc,
+    std::unordered_map<uint32_t, std::shared_ptr<sensor>>& sensor_map)
+{
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplSDL2_NewFrame();
+        ImGui::NewFrame();
+
+        ImGui::SetNextWindowPos(ImVec2(0, 0));
+        ImGuiIO& io = ImGui::GetIO();
+        ImGui::SetNextWindowSize(io.DisplaySize);
+        ImGui::Begin("MainWindow", nullptr,
+                     ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+                         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse |
+                         ImGuiWindowFlags_NoSavedSettings |
+                         ImGuiWindowFlags_NoScrollbar);
+
+        static std::string selected_signal;
+        static uint32_t selected_id = -1;
+        static char selected_orientation =
+            'a';  // default value, used for debugging
+        std::vector<std::string> widget_options = {};
+        for (const auto& pair : sensor_map)
+        {
+                auto x = std::to_string(pair.first) + 'x';
+                auto y = std::to_string(pair.first) + 'y';
+                auto z = std::to_string(pair.first) + 'z';
+                widget_options.push_back(x);
+                widget_options.push_back(y);
+                widget_options.push_back(z);
+        }
+        ImGui::BeginChild("TabWidget", ImVec2(150, 0), true);
+        ImGui::Text("Select Signal:");
+        ImGui::Separator();
+        for (const auto& option : widget_options)
+        {
+                if (ImGui::Selectable(option.c_str(),
+                                      selected_signal == option))
+                {
+                        selected_signal = option;
+                        // completely hacky but anyway
+                        selected_orientation = option.back();
+                        selected_id = std::stoul(option);
+                }
+        }
+        ImGui::EndChild();
+
+        ImGui::SameLine();
+
+        ImGui::BeginChild("PlotArea", ImVec2(0, 0), false);
+
+        if (selected_id != -1 && selected_orientation != 'a')
+        {
+                auto data = sensor_map[selected_id]->data;
+                auto x = std::vector<float>();
+                auto y = std::vector<float>();
+                // again, bad approach
+                if (selected_orientation == 'x')
+                {
+                        for (const auto& m : *data)
+                        {
+                                x.push_back(m.timestamp);
+                                y.push_back(m.x);
+                        }
+                }
+                else if (selected_orientation == 'y')
+                {
+                        for (const auto& m : *data)
+                        {
+                                x.push_back(m.timestamp);
+                                y.push_back(m.y);
+                        }
+                }
+                else if (selected_orientation == 'z')
+                {
+                        for (const auto& m : *data)
+                        {
+                                x.push_back(m.timestamp);
+                                y.push_back(m.z);
+                        }
+                }
+                if (ImPlot::BeginPlot("PRISM", ImVec2(-1, -1)))
+                {
+                        ImPlot::PlotLine(selected_signal.c_str(), x.data(),
+                                         y.data(), x.size());
+                        ImPlot::EndPlot();
+                }
+        }
+
+        ImGui::EndChild();
+
+        ImGui::End();
+
+        ImGui::Render();
+        glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        SDL_GL_SwapWindow(gc.window);
+}
+
+void clear_sdl(gui_context& gc)
+{
+        ImGui_ImplOpenGL3_Shutdown();
+        ImGui_ImplSDL2_Shutdown();
+        ImPlot::DestroyContext();
+        ImGui::DestroyContext();
+        SDL_GL_DeleteContext(gc.gl_context);
+        SDL_DestroyWindow(gc.window);
+        SDL_Quit();
+}
+
 #endif
 
-#if __APP_MODE == 2
-void hello() { std::cout << "clearly gui mode\n"; }
-#endif
 }  // namespace PRISM
